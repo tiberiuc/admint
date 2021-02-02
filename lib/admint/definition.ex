@@ -10,7 +10,7 @@ defmodule Admint.Definition do
     end
   end
 
-  defmacro admin(do: block) do
+  defmacro admin(_opts \\ [], do: block) do
     caller = __CALLER__.module
     {file, line} = get_stacktrace(__CALLER__)
 
@@ -55,24 +55,24 @@ defmodule Admint.Definition do
 
   defmacro category(name, do: block) do
     caller = __CALLER__.module
-    {file, line} = get_stacktrace(__CALLER__) |> IO.inspect()
+    {file, line} = get_stacktrace(__CALLER__)
 
     quote do
-      # unquote(
-      # check_stack_path(
-      #   [[:navigation, :admin]],
-      #   "\"category\" can only be declared as direct child of \"navigation\"",
-      #   file,
-      #   line,
-      #   caller
-      # )
-      # )
+      unquote(
+        check_stack_path(
+          [[:navigation, :admin]],
+          "\"category\" can only be declared as direct child of \"navigation\"",
+          file,
+          line,
+          caller
+        )
+      )
 
       nameis = unquote(name)
-      IO.puts("adding category #{nameis}")
+      # IO.puts("adding category #{nameis}")
       unquote(push_admint_context_stack({:category, name}, caller))
       unquote(block)
-      IO.puts("ended category #{nameis}")
+      # IO.puts("ended category #{nameis}")
       unquote(pop_admint_context_stack(caller))
     end
   end
@@ -95,13 +95,13 @@ defmodule Admint.Definition do
 
       stack = unquote(get_admint_context_stack(caller))
       nameis = unquote(name)
-      IO.puts("adding page #{nameis} into #{inspect(stack)}")
+      # IO.puts("adding page #{nameis} into #{inspect(stack)}")
     end
   end
 
   # ---- Private methods
-  defp expand_all(macro, caller \\ __ENV__) do
-    macro |> Macro.prewalk(&Macro.expand(&1, caller))
+  defp expand_all(macro) do
+    macro |> Macro.prewalk(&Macro.expand(&1, __ENV__))
   end
 
   defp set_admint_context_stack(value \\ [], caller) do
@@ -168,24 +168,31 @@ defmodule Admint.Definition do
     quote do
       stack = unquote(get_admint_context_stack(caller))
 
-      stack_path = stack
-      # |> Enum.map(fn entry ->
-      #   with {id, _} <- entry do
-      #     id
-      #   else
-      #     _ -> entry
-      #   end
-      # end)
+      if stack == nil do
+        unquote(
+          raise_compiler_error(
+            "admin  was already defined, all configurations must be defined inside \"admin\"",
+            file,
+            line
+          )
+        )
+      end
 
-      paths = []
-      a = path |> Enum.reduce(false, fn z -> z end)
-      IO.inspect(a)
+      stack_path =
+        stack
+        |> Enum.map(fn entry ->
+          with {id, _} <- entry do
+            id
+          else
+            _ -> entry
+          end
+        end)
 
-      # valid = unquote(paths) |> Enum.reduce(false, fn path, acc -> acc || path == stack_path end)
+      valid = unquote(paths) |> Enum.reduce(false, fn path, acc -> acc || path == stack_path end)
 
-      # if not valid do
-      #   unquote(raise_compiler_error(message, file, line))
-      # end
+      if not valid do
+        unquote(raise_compiler_error(message, file, line))
+      end
     end
     |> expand_all()
   end

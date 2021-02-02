@@ -5,7 +5,7 @@ defmodule Admint.MixProject do
     [
       app: :admint,
       version: "0.1.0",
-      elixir: "~> 1.7",
+      elixir: "~> 1.11.3",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
@@ -61,7 +61,10 @@ defmodule Admint.MixProject do
       setup: ["deps.get", "ecto.setup", "cmd npm install --prefix assets"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]
+      test: [
+        # "ecto.create --quiet", "ecto.migrate --quiet", 
+        "test"
+      ]
     ]
   end
 end
