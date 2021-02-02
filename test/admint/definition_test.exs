@@ -6,6 +6,7 @@ defmodule Admint.DefinitionTest do
   end
 
   describe "admin" do
+    @tag tibi: true
     test "admin is defined in root space" do
       ast =
         quote do
@@ -22,6 +23,7 @@ defmodule Admint.DefinitionTest do
       assert true
     end
 
+    @tag tibi: false
     test "CompileError when redeclare admin inside admin" do
       assert_raise CompileError, ~r/"admin" can only be declared as root element/, fn ->
         defmodule TestAdminCompileError do
@@ -193,7 +195,6 @@ defmodule Admint.DefinitionTest do
             admin do
               navigation do
                 category :category do
-                  end
                 end
               end
             end
@@ -207,13 +208,13 @@ defmodule Admint.DefinitionTest do
 
     test "CompileError when category in wrong space" do
       assert_raise CompileError,
-                   ~r/"page" can only be declared as direct child of "navigation" or "category"/,
+                   ~r/"category" can only be declared as direct child of "navigation"/,
                    fn ->
                      defmodule TestAdminCompileError do
                        use Admint.Definition
 
                        admin do
-                         category do
+                         category :category do
                          end
 
                          navigation do
@@ -222,20 +223,20 @@ defmodule Admint.DefinitionTest do
                      end
                    end
     end
+
     test "CompileError when category is inside category" do
       assert_raise CompileError,
-                   ~r/"page" can only be declared as direct child of "navigation" or "category"/,
+                   ~r/"category" can only be declared as direct child of "navigation"/,
                    fn ->
                      defmodule TestAdminCompileError do
                        use Admint.Definition
 
                        admin do
-
                          navigation do
-                         category do
-                     category do
-                   end
-                         end
+                           category :category do
+                             category :inside_category do
+                             end
+                           end
                          end
                        end
                      end
@@ -252,11 +253,10 @@ defmodule Admint.DefinitionTest do
                        admin do
                        end
 
-                       category do
+                       category :category do
                        end
                      end
                    end
     end
   end
-
 end
