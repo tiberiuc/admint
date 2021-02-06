@@ -6,7 +6,6 @@ defmodule Admint.DefinitionTest do
   end
 
   describe "admin" do
-    @tag tibi: true
     test "admin is defined in root space" do
       ast =
         quote do
@@ -23,7 +22,6 @@ defmodule Admint.DefinitionTest do
       assert true
     end
 
-    @tag tibi: false
     test "CompileError when redeclare admin inside admin" do
       assert_raise CompileError, ~r/"admin" can only be declared as root element/, fn ->
         defmodule TestAdminCompileError do
