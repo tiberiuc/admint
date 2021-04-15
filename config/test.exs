@@ -20,3 +20,5 @@ config :admint, AdmintWeb.Endpoint,
 
 # Print only warnings and errors during test
 config :logger, level: :warn
+
+config :phoenix, :json_library, Jason

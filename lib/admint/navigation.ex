@@ -3,6 +3,7 @@ defmodule Admint.Navigation do
     definition = apply(module, :__admint_definition__, [])
 
     definition.navigation.entries
+    |> Enum.reverse()
     |> Enum.map(fn entry ->
       {id, opts} = entry
 
@@ -13,6 +14,7 @@ defmodule Admint.Navigation do
         %{entries: entries, opts: opts} ->
           entries =
             entries
+            |> Enum.reverse()
             |> Enum.map(fn categ_entry ->
               {id, opts} = categ_entry
 

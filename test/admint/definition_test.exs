@@ -24,7 +24,7 @@ defmodule Admint.DefinitionTest do
 
     test "CompileError when redeclare admin inside admin" do
       assert_raise CompileError, ~r/"admin" can only be declared as root element/, fn ->
-        defmodule TestAdminCompileError do
+        defmodule TestAdminCompileErrorAdminInsideAdmin do
           use Admint.Definition
 
           admin do
@@ -39,7 +39,7 @@ defmodule Admint.DefinitionTest do
       assert_raise CompileError,
                    ~r/admin  was already defined, all configurations must be defined inside "admin"/,
                    fn ->
-                     defmodule TestAdminCompileError do
+                     defmodule TestAdminCompileErrorDubleDeclaration do
                        use Admint.Definition
 
                        admin do
@@ -75,7 +75,7 @@ defmodule Admint.DefinitionTest do
       assert_raise CompileError,
                    ~r/"navigation" can only be declared as direct child of "admin"/,
                    fn ->
-                     defmodule TestAdminCompileError do
+                     defmodule TestAdminCompileErrorNavInsideNav do
                        use Admint.Definition
 
                        admin do
@@ -92,7 +92,7 @@ defmodule Admint.DefinitionTest do
       assert_raise CompileError,
                    ~r/admin  was already defined, all configurations must be defined inside "admin"/,
                    fn ->
-                     defmodule TestAdminCompileError do
+                     defmodule TestAdminCompileErrorOutsideNavigation do
                        use Admint.Definition
 
                        admin do
@@ -150,7 +150,7 @@ defmodule Admint.DefinitionTest do
       assert_raise CompileError,
                    ~r/"page" can only be declared as direct child of "navigation" or "category"/,
                    fn ->
-                     defmodule TestAdminCompileError do
+                     defmodule TestAdminCompileErrorPageOutsideNav do
                        use Admint.Definition
 
                        admin do
@@ -167,7 +167,7 @@ defmodule Admint.DefinitionTest do
       assert_raise CompileError,
                    ~r/admin  was already defined, all configurations must be defined inside "admin"/,
                    fn ->
-                     defmodule TestAdminCompileError do
+                     defmodule TestAdminCompileErrorOutsidePageDeclaration do
                        use Admint.Definition
 
                        admin do
@@ -204,7 +204,7 @@ defmodule Admint.DefinitionTest do
       assert_raise CompileError,
                    ~r/"category" can only be declared as direct child of "navigation"/,
                    fn ->
-                     defmodule TestAdminCompileError do
+                     defmodule TestAdminCompileErrorCategOutsideNav do
                        use Admint.Definition
 
                        admin do
@@ -222,7 +222,7 @@ defmodule Admint.DefinitionTest do
       assert_raise CompileError,
                    ~r/"category" can only be declared as direct child of "navigation"/,
                    fn ->
-                     defmodule TestAdminCompileError do
+                     defmodule TestAdminCompileErrorCategInsideCateg do
                        use Admint.Definition
 
                        admin do
@@ -241,7 +241,7 @@ defmodule Admint.DefinitionTest do
       assert_raise CompileError,
                    ~r/admin  was already defined, all configurations must be defined inside "admin"/,
                    fn ->
-                     defmodule TestAdminCompileError do
+                     defmodule TestAdminCompileErrorOutsideDef do
                        use Admint.Definition
 
                        admin do
@@ -327,7 +327,7 @@ defmodule Admint.DefinitionTest do
     end
 
     test "Page inside navigation" do
-      defmodule TestNavigationPage do
+      defmodule TestNavigationPageOnePage do
         use Admint.Definition
 
         admin do
@@ -337,7 +337,7 @@ defmodule Admint.DefinitionTest do
         end
       end
 
-      definition = TestNavigationPage.__admint_definition__()
+      definition = TestNavigationPageOnePage.__admint_definition__()
 
       assert %{
                header: _,
@@ -345,6 +345,68 @@ defmodule Admint.DefinitionTest do
                  entries: [page1: %{id: :page1, opts: _, type: :page}]
                }
              } = definition
+    end
+
+    test "Multiple pages inside navigation" do
+      defmodule TestNavigationPage do
+        use Admint.Definition
+
+        admin do
+          navigation do
+            page :page1
+            page :page2
+
+            category :category do
+              page :page3
+              page :page4
+            end
+          end
+        end
+      end
+
+      definition = TestNavigationPage.__admint_definition__()
+
+      assert %{
+               header: _,
+               navigation: %{
+                 entries: [
+                   {
+                     :category,
+                     %{
+                       id: :category,
+                       opts: %{},
+                       type: :category,
+                       entries: [
+                         page4: %{id: :page4, opts: %{}, type: :page},
+                         page3: %{id: :page3, opts: %{}, type: :page}
+                       ]
+                     }
+                   },
+                   {
+                     :page2,
+                     %{id: :page2, opts: %{}, type: :page}
+                   },
+                   {:page1, %{id: :page1, opts: %{}, type: :page}}
+                 ]
+               }
+             } = definition
+    end
+
+    test "CompileError when page id is reused" do
+      assert_raise CompileError,
+                   ~r/page id must be unique/,
+                   fn ->
+                     defmodule TestAdminCompileError do
+                       use Admint.Definition
+
+                       admin do
+                         navigation do
+                           page :page1
+                           page :page1
+                         end
+                       end
+                     end
+                   end
     end
   end
 end
