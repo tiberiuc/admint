@@ -23,7 +23,7 @@ defmodule AdmintWeb do
 
       import Plug.Conn
       import AdmintWeb.Gettext
-      alias AdmintWeb.Router.Helpers, as: Routes
+      alias unquote(Admint.Utils.router()), as: Routes
     end
   end
 
@@ -89,7 +89,7 @@ defmodule AdmintWeb do
 
       import AdmintWeb.ErrorHelpers
       import AdmintWeb.Gettext
-      alias AdmintWeb.Router.Helpers, as: Routes
+      alias unquote(Admint.Utils.router()), as: Routes
     end
   end
 

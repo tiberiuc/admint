@@ -1,5 +1,5 @@
-defmodule AdmintWeb.PageLive do
-  use AdmintWeb, :live_view
+defmodule AdmintWeb.Demo.PageLive do
+  use AdmintWeb.Demo, :live_view
 
   @impl true
   def mount(_params, _session, socket) do
@@ -13,6 +13,8 @@ defmodule AdmintWeb.PageLive do
 
   @impl true
   def handle_event("search", %{"q" => query}, socket) do
+    IO.inspect(query)
+
     case search(query) do
       %{^query => vsn} ->
         {:noreply, redirect(socket, external: "https://hexdocs.pm/#{query}/#{vsn}")}
@@ -26,7 +28,7 @@ defmodule AdmintWeb.PageLive do
   end
 
   defp search(query) do
-    if not AdmintWeb.Endpoint.config(:code_reloader) do
+    if not AdmintWeb.Demo.Endpoint.config(:code_reloader) do
       raise "action disabled when not in development"
     end
 

@@ -1,4 +1,4 @@
-defmodule AdmintWeb.Telemetry do
+defmodule AdmintWeb.Demo.Telemetry do
   use Supervisor
   import Telemetry.Metrics
 

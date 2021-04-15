@@ -1,4 +1,4 @@
-defmodule AdmintWeb.UserSocket do
+defmodule AdmintWeb.Demo.UserSocket do
   use Phoenix.Socket
 
   ## Channels

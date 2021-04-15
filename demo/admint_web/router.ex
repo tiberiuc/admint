@@ -1,11 +1,12 @@
-defmodule AdmintWeb.Router do
-  use AdmintWeb, :router
+defmodule AdmintWeb.Demo.Router do
+  use AdmintWeb.Demo, :router
+  use Admint
 
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
     plug :fetch_live_flash
-    plug :put_root_layout, {AdmintWeb.LayoutView, :root}
+    plug :put_root_layout, {AdmintWeb.Demo.LayoutView, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
   end
@@ -14,11 +15,17 @@ defmodule AdmintWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/", AdmintWeb do
+  scope "/", AdmintWeb.Demo do
     pipe_through :browser
 
     live "/", PageLive, :index
   end
+
+  admint "/test", AdmintWeb.Demo.Admin do
+    pipe_through :browser
+  end
+
+
 
   # Other scopes may use custom stacks.
   # scope "/api", AdmintWeb do
@@ -32,12 +39,12 @@ defmodule AdmintWeb.Router do
   # If your application does not have an admins-only section yet,
   # you can use Plug.BasicAuth to set up some basic authentication
   # as long as you are also using SSL (which you should anyway).
-  if Mix.env() in [:dev, :test] do
+  if Mix.env() in [:dev, :test, :demo] do
     import Phoenix.LiveDashboard.Router
 
     scope "/" do
       pipe_through :browser
-      live_dashboard "/dashboard", metrics: AdmintWeb.Telemetry
+      live_dashboard "/dashboard", metrics: AdmintWeb.Demo.Telemetry
     end
   end
 end

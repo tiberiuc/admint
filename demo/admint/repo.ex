@@ -1,4 +1,4 @@
-defmodule Admint.Repo do
+defmodule Admint.Demo.Repo do
   use Ecto.Repo,
     otp_app: :admint,
     adapter: Ecto.Adapters.Postgres

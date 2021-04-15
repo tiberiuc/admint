@@ -1,5 +1,6 @@
 defmodule Admint.Definition do
   @admint_context_stack :__admint_context_stack__
+  @admint_definition :__admint_definition_data__
 
   defmacro __using__(_opts) do
     caller = __CALLER__.module
@@ -10,6 +11,21 @@ defmodule Admint.Definition do
     end
   end
 
+  @doc """
+  Defines an admint configuration 
+
+  An admin have two parts:
+    header - ( optional ) define global configuratyoins for the admin
+    navigation - define the navigation with all the pages inside the admin
+
+  Example:
+
+    admin do
+      navigation do
+        page :posts, schema: MyApp.Post
+      end
+    end
+  """
   defmacro admin(_opts \\ [], do: block) do
     caller = __CALLER__.module
     {file, line} = get_stacktrace(__CALLER__)
@@ -25,13 +41,34 @@ defmodule Admint.Definition do
         )
       )
 
+      unquote(set_admint_definition(caller))
       unquote(push_admint_context_stack(:admin, caller))
       unquote(block)
       unquote(pop_admint_context_stack(caller))
       unquote(cleanup_admint_context_stack(caller))
+
+      def __admint_definition__() do
+        @__admint_definition_data__
+      end
     end
   end
 
+  @doc """
+  Navigation defines all the pages inside admin. Pages can be in root or inside a category
+
+  Example:
+    
+    admin do
+      navigation do
+        page :dashboard, render: MyApp.Dashboard
+        category :blog do
+          page :post, schema: MyApp.Post
+          page :comments, schema: MyAp.comments
+        end
+        page :mycustompage, title: "Custom Page",  render MyAppWeb.CustomPage 
+      end
+    end
+  """
   defmacro navigation(_opts \\ [], do: block) do
     caller = __CALLER__.module
     {file, line} = get_stacktrace(__CALLER__)
@@ -53,7 +90,7 @@ defmodule Admint.Definition do
     end
   end
 
-  defmacro category(name, do: block) do
+  defmacro category(id, do: block) do
     caller = __CALLER__.module
     {file, line} = get_stacktrace(__CALLER__)
 
@@ -68,16 +105,31 @@ defmodule Admint.Definition do
         )
       )
 
-      nameis = unquote(name)
-      # IO.puts("adding category #{nameis}")
-      unquote(push_admint_context_stack({:category, name}, caller))
+      unquote(push_admint_context_stack({:category, id}, caller))
+
+      path = unquote(get_admint_context_stack(caller))
+
+      unquote(
+        update_admint_definition(
+          quote do
+            path
+          end,
+          Macro.escape(%{
+            type: :category,
+            id: id,
+            opts: %{},
+            entries: []
+          }),
+          caller
+        )
+      )
+
       unquote(block)
-      # IO.puts("ended category #{nameis}")
       unquote(pop_admint_context_stack(caller))
     end
   end
 
-  defmacro page(name, opts \\ []) do
+  defmacro page(id, opts \\ []) do
     check_valid_schema(__CALLER__, opts)
     caller = __CALLER__.module
     {file, line} = get_stacktrace(__CALLER__)
@@ -93,9 +145,21 @@ defmodule Admint.Definition do
         )
       )
 
-      stack = unquote(get_admint_context_stack(caller))
-      nameis = unquote(name)
-      # IO.puts("adding page #{nameis} into #{inspect(stack)}")
+      path = [{:page, unquote(id)} | unquote(get_admint_context_stack(caller))]
+
+      unquote(
+        update_admint_definition(
+          quote do
+            path
+          end,
+          Macro.escape(%{
+            type: :page,
+            id: id,
+            opts: %{}
+          }),
+          caller
+        )
+      )
     end
   end
 
@@ -226,5 +290,64 @@ defmodule Admint.Definition do
           line: line,
           description: "Expected module with Ecto schema but got #{inspect(schema)}"
     end
+  end
+
+  defp set_admint_definition(caller, value \\ nil) do
+    quote do
+      value =
+        case unquote(value) do
+          nil ->
+            %{
+              header: %{},
+              navigation: %{entries: []}
+            }
+
+          _ ->
+            unquote(value)
+        end
+
+      Module.register_attribute(unquote(caller), unquote(@admint_definition), persist: true)
+      Module.put_attribute(unquote(caller), unquote(@admint_definition), value)
+    end
+    |> expand_all()
+  end
+
+  defp definition_path_from_stack(path) do
+    quote do
+      unquote(path)
+      |> Enum.reverse()
+      |> Enum.flat_map(fn value ->
+        case value do
+          :admin ->
+            []
+
+          :navigation ->
+            [:navigation]
+
+          {:category, id} ->
+            [:entries, id]
+
+          {:page, id} ->
+            [:entries, id]
+
+          _ ->
+            [value]
+        end
+      end)
+    end
+    |> expand_all()
+  end
+
+  defp update_admint_definition(path, value, caller) do
+    quote do
+      path = unquote(definition_path_from_stack(path))
+
+      definition =
+        Module.get_attribute(unquote(caller), unquote(@admint_definition))
+        |> put_in(path, unquote(value))
+
+      Module.put_attribute(unquote(caller), unquote(@admint_definition), definition)
+    end
+    |> expand_all()
   end
 end

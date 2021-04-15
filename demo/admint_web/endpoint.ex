@@ -1,4 +1,4 @@
-defmodule AdmintWeb.Endpoint do
+defmodule AdmintWeb.Demo.Endpoint do
   use Phoenix.Endpoint, otp_app: :admint
 
   # The session will be stored in the cookie and signed,
@@ -10,7 +10,7 @@ defmodule AdmintWeb.Endpoint do
     signing_salt: "rV53E1NJ"
   ]
 
-  socket "/socket", AdmintWeb.UserSocket,
+  socket "/socket", AdmintWeb.Demo.UserSocket,
     websocket: true,
     longpoll: false
 
@@ -50,5 +50,5 @@ defmodule AdmintWeb.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
-  plug AdmintWeb.Router
+  plug AdmintWeb.Demo.Router
 end

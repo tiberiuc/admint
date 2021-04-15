@@ -1,7 +1,29 @@
 use Mix.Config
 
+config :admint,
+  ecto_repos: [Admint.Demo.Repo],
+  otp_app: :admint,
+  ecto_repo: Admint.Demo.Repo,
+  router: AdmintWeb.Demo.Router
+
+# Configures the endpoint
+config :admint, AdmintWeb.Demo.Endpoint,
+  url: [host: "localhost"],
+  secret_key_base: "dcaIp9/8abWLt/f0x6Rn8ymumOHwHsB+g/v3CnYIAoe+gYuk//spZWxYJH/U8OLH",
+  render_errors: [view: AdmintWeb.Demo.ErrorView, accepts: ~w(html json), layout: false],
+  pubsub_server: Admint.Demo.PubSub,
+  live_view: [signing_salt: "0D0yeLGi"]
+
+# Configures Elixir's Logger
+config :logger, :console,
+  format: "$time $metadata[$level] $message\n",
+  metadata: [:request_id]
+
+# Use Jason for JSON parsing in Phoenix
+config :phoenix, :json_library, Jason
+
 # Configure your database
-config :admint, Admint.Repo,
+config :admint, Admint.Demo.Repo,
   username: "postgres",
   password: "postgres",
   database: "admint_dev",
@@ -15,7 +37,7 @@ config :admint, Admint.Repo,
 # The watchers configuration can be used to run external
 # watchers to your application. For example, we use it
 # with webpack to recompile .js and .css sources.
-config :admint, AdmintWeb.Endpoint,
+config :admint, AdmintWeb.Demo.Endpoint,
   http: [port: 4000],
   debug_errors: true,
   code_reloader: true,
@@ -55,11 +77,13 @@ config :admint, AdmintWeb.Endpoint,
 # different ports.
 
 # Watch static and templates for browser reloading.
-config :admint, AdmintWeb.Endpoint,
+config :admint, AdmintWeb.Demo.Endpoint,
   live_reload: [
     patterns: [
       ~r"priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$",
       ~r"priv/gettext/.*(po)$",
+      ~r"demo/admint_web/(live|views)/.*(ex)$",
+      ~r"demo/admint_web/templates/.*(eex)$",
       ~r"lib/admint_web/(live|views)/.*(ex)$",
       ~r"lib/admint_web/templates/.*(eex)$"
     ]
