@@ -16,7 +16,7 @@
             <%= cond do %>
               <% type == :page ->%>
                 <li>
-                  <%= live_redirect title, to: Routes.admint_page_path(@socket, @admint.base_path, Atom.to_string(id)) %>
+                  <%= live_redirect title, to: Admint.Navigation.to_page(@socket, assigns, id), class: [@admint.current_page == id && "is-active" || ""] %>
                 </li>
               <% type == :category ->%>
                 <li>
@@ -24,7 +24,7 @@
                   <ul class="menu-list">
                     <%= for {_type, id, title, _opts} <- opts do %>
                       <li>
-                        <%= live_redirect title, to: Routes.admint_page_path(@socket, @admint.base_path, Atom.to_string(id)) %>
+                        <%= live_redirect title, to: Admint.Navigation.to_page(@socket, assigns, id), class: [@admint.current_page == id && "is-active" || ""] %>
                       </li>
                     <% end %>
                   </ul>

@@ -4,22 +4,20 @@ defmodule AdmintWeb.ContainerLive do
   @impl true
   def mount(params, session, socket) do
     module = session["admint_module"]
-    IO.inspect(params)
+
+    current_page =
+      cond do
+        is_bitstring(params["page"]) -> String.to_atom(params["page"])
+        true -> ""
+      end
+
+    navigation = Admint.Navigation.get(module)
 
     admint = %{
       module: module,
       base_path: session["base_path"],
-      navigation: [
-        {:page, :a, "Dashboard", []},
-        {:category, :ca, "General", []},
-        {:page, :b, "Clients", []},
-        {:category, :ca, "Transactions",
-         [
-           {:page, :c, "Payments", []},
-           {:page, :d, "Balance", []}
-         ]},
-        {:page, :e, "Invitations", []}
-      ]
+      navigation: navigation,
+      current_page: current_page
     }
 
     assigns =
