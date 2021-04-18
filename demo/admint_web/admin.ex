@@ -3,21 +3,20 @@ defmodule AdmintWeb.Demo.Admin do
 
   admin do
     navigation do
-      page :dashboard
+      page :dashboard, title: "My dashboard", schema: Admint.Demo.Schema
 
-      page :first_page
+      page :first_page, title: "My first page"
       page :second_page
 
-      category :general  do
+      category "Custom category title" do
         page :members
         page :plugins
       end
 
-      category :transactions do
+      category "Transactions" do
       end
 
       page :payments
     end
   end
-
 end

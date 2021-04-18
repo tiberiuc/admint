@@ -13,8 +13,6 @@ defmodule AdmintWeb.Demo.PageLive do
 
   @impl true
   def handle_event("search", %{"q" => query}, socket) do
-    IO.inspect(query)
-
     case search(query) do
       %{^query => vsn} ->
         {:noreply, redirect(socket, external: "https://hexdocs.pm/#{query}/#{vsn}")}

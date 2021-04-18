@@ -61,7 +61,7 @@ defmodule Admint.Definition do
     admin do
       navigation do
         page :dashboard, render: MyApp.Dashboard
-        category :blog do
+        category "Blog"" do
           page :post, schema: MyApp.Post
           page :comments, schema: MyAp.comments
         end
@@ -90,15 +90,27 @@ defmodule Admint.Definition do
     end
   end
 
-  defmacro category(id, do: block) do
+  defmacro category(title, opts \\ [], do: block) do
     caller = __CALLER__.module
     {file, line} = get_stacktrace(__CALLER__)
+    id = ("C" <> UUID.uuid4(:hex)) |> String.to_atom()
 
     quote do
       unquote(
         check_stack_path(
           [[:navigation, :admin]],
           "\"category\" can only be declared as direct child of \"navigation\"",
+          file,
+          line,
+          caller
+        )
+      )
+
+      unquote(
+        check_unique_ids(
+          caller,
+          id,
+          "ids must be unique, \"#{id}\" was already defined",
           file,
           line,
           caller
@@ -117,7 +129,7 @@ defmodule Admint.Definition do
           Macro.escape(%{
             type: :category,
             id: id,
-            opts: %{},
+            opts: Enum.into(opts, %{}) |> Map.merge(%{title: title}),
             entries: []
           }),
           caller
@@ -145,6 +157,17 @@ defmodule Admint.Definition do
         )
       )
 
+      unquote(
+        check_unique_ids(
+          caller,
+          id,
+          "ids must be unique, \"#{id}\" was already defined",
+          file,
+          line,
+          caller
+        )
+      )
+
       path = [{:page, unquote(id)} | unquote(get_admint_context_stack(caller))]
 
       unquote(
@@ -155,7 +178,7 @@ defmodule Admint.Definition do
           Macro.escape(%{
             type: :page,
             id: id,
-            opts: %{}
+            opts: Enum.into(opts, %{})
           }),
           caller
         )
@@ -178,6 +201,31 @@ defmodule Admint.Definition do
   defp get_admint_context_stack(caller) do
     quote do
       Module.get_attribute(unquote(caller), unquote(@admint_context_stack))
+    end
+    |> expand_all()
+  end
+
+  defp check_unique_ids(caller, id, message, file, line, caller) do
+    quote do
+      def = Module.get_attribute(unquote(caller), unquote(@admint_definition))
+
+      exists? =
+        def.navigation.entries
+        |> Enum.flat_map(fn entry ->
+          case entry do
+            {id, %{type: :page}} ->
+              [id]
+
+            {id, %{type: category, entries: entries}} ->
+              [id] ++
+                Enum.map(entries, fn {id, _} -> id end)
+          end
+        end)
+        |> Enum.find_value(&(&1 == unquote(id)))
+
+      if exists? do
+        unquote(raise_compiler_error(message, file, line))
+      end
     end
     |> expand_all()
   end

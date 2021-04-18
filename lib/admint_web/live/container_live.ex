@@ -7,28 +7,19 @@ defmodule AdmintWeb.ContainerLive do
 
     navigation = Admint.Navigation.get(module)
 
-    first_page =
-      navigation
-      |> Enum.flat_map(fn entry ->
-        case entry do
-          {:category, _, _, entries} -> entries
-          _ -> [entry]
-        end
-      end)
-      |> Enum.map(fn {_, id, _, _} -> id end)
-      |> List.first()
+    first_page = Admint.Navigation.get_index_page_id(module)
 
-    current_page =
-      cond do
-        is_bitstring(params["page"]) -> String.to_atom(params["page"])
-        true -> first_page
-      end
+    current_page = get_param_as_atom(params, "page", first_page)
+    action = get_param_as_atom(params, "action", :index)
 
     admint = %{
       module: module,
       base_path: session["base_path"],
       navigation: navigation,
-      current_page: current_page
+      current_page: current_page,
+      route: %{
+        action: action
+      }
     }
 
     assigns =
@@ -36,5 +27,12 @@ defmodule AdmintWeb.ContainerLive do
       |> assign(admint: admint)
 
     {:ok, assigns}
+  end
+
+  defp get_param_as_atom(params, name, default \\ nil) do
+    cond do
+      is_bitstring(params[name]) -> String.to_atom(params[name])
+      true -> default
+    end
   end
 end

@@ -31,7 +31,6 @@ defmodule Admint.MixProject do
     else
       apps
     end
-    |> IO.inspect()
   end
 
   # Specifies which paths to compile per environment.
@@ -57,7 +56,8 @@ defmodule Admint.MixProject do
       {:telemetry_poller, "~> 0.4", only: :demo},
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
-      {:plug_cowboy, "~> 2.0"}
+      {:plug_cowboy, "~> 2.0"},
+      {:elixir_uuid, "~> 1.2"}
     ]
   end
 

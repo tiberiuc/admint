@@ -133,7 +133,7 @@ defmodule Admint.DefinitionTest do
 
             admin do
               navigation do
-                category :category do
+                category "category" do
                   page :test_page
                 end
               end
@@ -188,7 +188,7 @@ defmodule Admint.DefinitionTest do
 
             admin do
               navigation do
-                category :category do
+                category "category" do
                 end
               end
             end
@@ -208,7 +208,7 @@ defmodule Admint.DefinitionTest do
                        use Admint.Definition
 
                        admin do
-                         category :category do
+                         category "category" do
                          end
 
                          navigation do
@@ -227,8 +227,8 @@ defmodule Admint.DefinitionTest do
 
                        admin do
                          navigation do
-                           category :category do
-                             category :inside_category do
+                           category "category" do
+                             category "inside category" do
                              end
                            end
                          end
@@ -247,7 +247,7 @@ defmodule Admint.DefinitionTest do
                        admin do
                        end
 
-                       category :category do
+                       category "category" do
                        end
                      end
                    end
@@ -273,7 +273,7 @@ defmodule Admint.DefinitionTest do
 
         admin do
           navigation do
-            category :category1 do
+            category "category1" do
             end
           end
         end
@@ -285,12 +285,13 @@ defmodule Admint.DefinitionTest do
                header: _,
                navigation: %{
                  entries: [
-                   category1: %{
-                     entries: [],
-                     id: :category1,
-                     opts: _,
-                     type: :category
-                   }
+                   {_,
+                    %{
+                      entries: [],
+                      id: _,
+                      opts: _,
+                      type: :category
+                    }}
                  ]
                }
              } = definition
@@ -302,7 +303,7 @@ defmodule Admint.DefinitionTest do
 
         admin do
           navigation do
-            category :category1 do
+            category "category1" do
               page :page1
             end
           end
@@ -315,12 +316,13 @@ defmodule Admint.DefinitionTest do
                header: _,
                navigation: %{
                  entries: [
-                   category1: %{
-                     entries: [page1: %{id: :page1, opts: _, type: :page}],
-                     id: :category1,
-                     opts: _,
-                     type: :category
-                   }
+                   {_,
+                    %{
+                      entries: [page1: %{id: :page1, opts: _, type: :page}],
+                      id: _,
+                      opts: %{title: "category1"},
+                      type: :category
+                    }}
                  ]
                }
              } = definition
@@ -356,7 +358,7 @@ defmodule Admint.DefinitionTest do
             page :page1
             page :page2
 
-            category :category do
+            category "category" do
               page :page3
               page :page4
             end
@@ -371,10 +373,10 @@ defmodule Admint.DefinitionTest do
                navigation: %{
                  entries: [
                    {
-                     :category,
+                     _,
                      %{
-                       id: :category,
-                       opts: %{},
+                       id: _,
+                       opts: %{title: "category"},
                        type: :category,
                        entries: [
                          page4: %{id: :page4, opts: %{}, type: :page},
@@ -394,15 +396,38 @@ defmodule Admint.DefinitionTest do
 
     test "CompileError when page id is reused" do
       assert_raise CompileError,
-                   ~r/page id must be unique/,
+                   ~r/ids must be unique/,
                    fn ->
-                     defmodule TestAdminCompileError do
+                     defmodule TestAdminCompileErrorUniqueId do
                        use Admint.Definition
 
                        admin do
                          navigation do
                            page :page1
+                           page :page2
+
                            page :page1
+                         end
+                       end
+                     end
+                   end
+    end
+
+    test "CompileError when page id inside category is reused" do
+      assert_raise CompileError,
+                   ~r/ids must be unique/,
+                   fn ->
+                     defmodule TestAdminCompileErrorUniqueId do
+                       use Admint.Definition
+
+                       admin do
+                         navigation do
+                           page :page1
+                           page :page2
+
+                           category "category" do
+                             page :page1
+                           end
                          end
                        end
                      end

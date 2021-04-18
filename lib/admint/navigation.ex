@@ -9,7 +9,7 @@ defmodule Admint.Navigation do
 
       case opts do
         %{type: :page} ->
-          {:page, id, get_title(id, opts), []}
+          {:page, id, get_title(id, opts), opts.opts}
 
         %{entries: entries, opts: opts} ->
           entries =
@@ -19,7 +19,7 @@ defmodule Admint.Navigation do
               {id, opts} = categ_entry
 
               case opts do
-                %{type: :page} -> {:page, id, get_title(id, opts), []}
+                %{type: :page} -> {:page, id, get_title(id, opts), opts.opts}
                 _ -> nil
               end
             end)
@@ -39,6 +39,29 @@ defmodule Admint.Navigation do
     apply(router, :admint_page_path, [socket, assigns.admint.base_path, Atom.to_string(page)])
   end
 
+  def get_index_page_id(module) do
+    get_all_pages(module)
+    |> Enum.map(fn {_, id, _, _} -> id end)
+    |> List.first()
+  end
+
+  def get_page_by_id(module, page_id) do
+    get_all_pages(module)
+    |> Enum.filter(fn {_, id, _, _} -> id == page_id end)
+    |> List.first()
+  end
+
+  defp get_all_pages(module) do
+    get(module)
+    |> Enum.flat_map(fn entry ->
+      case entry do
+        {:category, _, _, entries} -> entries
+        entry -> [entry]
+      end
+    end)
+  end
+
+  defp get_title(_id, %{title: title}), do: title
   defp get_title(_id, %{opts: %{title: title}}), do: title
 
   defp get_title(id, _opts), do: get_title(id)
