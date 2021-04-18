@@ -175,11 +175,11 @@ defmodule Admint.Nvigation.Test do
 
       page1 = Admint.Navigation.get_page_by_id(TestNavigationOpts, :page1)
       {:page, :page1, "Custom page title", opts} = page1
-      assert %{schema: {:__aliases__, _, [:MyApp, :Blog]}, title: "Custom page title"} = opts
+      assert %{schema: MyApp.Blog, title: "Custom page title"} = opts
 
       page3 = Admint.Navigation.get_page_by_id(TestNavigationOpts, :page3)
       {:page, :page3, "Page3", opts} = page3
-      assert %{schema: {:__aliases__, _, [:MyApp, :Post]}, custom_opt: :test} = opts
+      assert %{schema: MyApp.Post, custom_opt: :test} = opts
     end
   end
 end

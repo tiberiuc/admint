@@ -19,9 +19,9 @@ defmodule Admint.PageTest do
     end
 
     opts = Admint.Page.get_opts(TestNavigationOpts, :page1)
-    assert %{schema: {:__aliases__, _, [:MyApp, :Blog]}, title: "Custom page title"} = opts
+    assert %{schema: MyApp.Blog, title: "Custom page title"} = opts
 
     opts = Admint.Page.get_opts(TestNavigationOpts, :page3)
-    assert %{schema: {:__aliases__, _, [:MyApp, :Post]}, custom_opt: :test} = opts
+    assert %{schema: MyApp.Post, custom_opt: :test} = opts
   end
 end

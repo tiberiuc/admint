@@ -121,17 +121,17 @@ defmodule Admint.Definition do
 
       path = unquote(get_admint_context_stack(caller))
 
+      map_opts = Enum.into(unquote(opts), %{}) |> Map.merge(%{title: unquote(title)})
+      data = %{type: :category, id: unquote(id), opts: map_opts, entries: []}
+
       unquote(
         update_admint_definition(
           quote do
             path
           end,
-          Macro.escape(%{
-            type: :category,
-            id: id,
-            opts: Enum.into(opts, %{}) |> Map.merge(%{title: title}),
-            entries: []
-          }),
+          quote do
+            data
+          end,
           caller
         )
       )
@@ -170,16 +170,17 @@ defmodule Admint.Definition do
 
       path = [{:page, unquote(id)} | unquote(get_admint_context_stack(caller))]
 
+      map_opts = Enum.into(unquote(opts), %{})
+      data = %{type: :page, id: unquote(id), opts: map_opts}
+
       unquote(
         update_admint_definition(
           quote do
             path
           end,
-          Macro.escape(%{
-            type: :page,
-            id: id,
-            opts: Enum.into(opts, %{})
-          }),
+          quote do
+            data
+          end,
           caller
         )
       )

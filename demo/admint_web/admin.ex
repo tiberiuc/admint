@@ -6,7 +6,7 @@ defmodule AdmintWeb.Demo.Admin do
       page :dashboard, title: "My dashboard", schema: Admint.Demo.Schema
 
       page :first_page, title: "My first page"
-      page :second_page
+      page :custom_page, render: AdmintWeb.Demo.CustomPage
 
       category "Custom category title" do
         page :members
