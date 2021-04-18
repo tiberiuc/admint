@@ -29,6 +29,28 @@ defmodule AdmintWeb.ContainerLive do
     {:ok, assigns}
   end
 
+  @impl true
+  def handle_params(params, _uri, socket) do
+    assigns = socket.assigns
+    admint = assigns.admint
+
+    module = admint.module
+    first_page = Admint.Navigation.get_index_page_id(module)
+
+    current_page = get_param_as_atom(params, "page", first_page)
+    action = get_param_as_atom(params, "action", :index)
+
+    admint = %{
+      admint
+      | current_page: current_page,
+        route: %{
+          action: action
+        }
+    }
+
+    {:noreply, assign(socket, admint: admint)}
+  end
+
   defp get_param_as_atom(params, name, default \\ nil) do
     cond do
       is_bitstring(params[name]) -> String.to_atom(params[name])
