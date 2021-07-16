@@ -1,3 +1,3 @@
-defmodule AdmintWeb.LayoutView do
-  use AdmintWeb, :view
+defmodule Admint.Web.LayoutView do
+  use Admint.Web, :view
 end

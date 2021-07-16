@@ -39,6 +39,29 @@ defmodule Admint.Navigation do
     apply(router, :admint_page_path, [socket, assigns.admint.base_path, Atom.to_string(page)])
   end
 
+  def to_page_id_view(socket, assigns, page, id) do
+    router = Admint.Utils.router()
+
+    apply(router, :admint_page_view_path, [
+      socket,
+      assigns.admint.base_path,
+      Atom.to_string(page),
+      id
+    ])
+  end
+
+  def to_page_id_edit(socket, assigns, page, id) do
+    router = Admint.Utils.router()
+
+    apply(router, :admint_page_action_path, [
+      socket,
+      assigns.admint.base_path,
+      Atom.to_string(page),
+      id,
+      :edit
+    ])
+  end
+
   def get_index_page_id(module) do
     get_all_pages(module)
     |> Enum.map(fn {_, id, _, _} -> id end)
@@ -67,9 +90,6 @@ defmodule Admint.Navigation do
   defp get_title(id, _opts), do: get_title(id)
 
   defp get_title(id) do
-    Atom.to_string(id)
-    |> String.split("_")
-    |> Enum.map(&String.capitalize/1)
-    |> Enum.join(" ")
+    Admint.Utils.humanize(id)
   end
 end

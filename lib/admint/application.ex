@@ -6,18 +6,7 @@ defmodule Admint.Application do
   use Application
 
   def start(_type, _args) do
-    children = [
-      # Start the Ecto repository
-      # Admint.Test.Repo,
-      # Start the Telemetry supervisor
-      # AdmintWeb.Telemetry,
-      # Start the PubSub system
-      # {Phoenix.PubSub, name: Admint.PubSub},
-      # Start the Endpoint (http/https)
-      # AdmintWeb.Endpoint
-      # Start a worker by calling: Admint.Worker.start_link(arg)
-      # {Admint.Worker, arg}
-    ]
+    children = []
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
@@ -28,7 +17,6 @@ defmodule Admint.Application do
   # Tell Phoenix to update the endpoint configuration
   # whenever the application is updated.
   def config_change(_changed, _new, _removed) do
-    # AdmintWeb.Endpoint.config_change(changed, removed)
     :ok
   end
 end

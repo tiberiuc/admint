@@ -38,7 +38,7 @@
       </aside>
     </div>
     <div class="column is-10 pl-4 pr-4">
-      <%= live_component @socket, AdmintWeb.ContentComponent, %{ admint: Map.take(assigns.admint, [:base_path, :current_page, :module, :route]) } %>
+      <%= live_component @socket, Admint.Web.ContentComponent, %{ admint: Map.take(assigns.admint, [:base_path, :current_page, :module, :route]) } %>
     </div>
   </div>
 

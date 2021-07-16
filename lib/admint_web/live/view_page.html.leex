@@ -1,0 +1,11 @@
+<h1 class="title"><%= Admint.Page.page_title(@admint.page_opts) %></h1>
+<table class="table is-hoverable">
+  <tbody>
+    <%= for {field_id,field} <- @admint.fields do %>
+      <tr id=<%=field_id %>>
+        <td><%=field.label%></td>
+        <td><%=Map.get(@admint.data, field_id) %></td>          
+      </tr>
+    <% end %>
+  </tbody>
+</table>

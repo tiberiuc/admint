@@ -23,18 +23,10 @@ defmodule Admint.MixProject do
       extra_applications: [:logger, :runtime_tools]
     ]
 
-    if Mix.env() == :demo do
-      [
-        mod: {Admint.Demo.Application, []}
-      ] ++
-        apps
-    else
-      apps
-    end
+    apps
   end
 
   # Specifies which paths to compile per environment.
-  defp elixirc_paths(:demo), do: ["lib", "demo"]
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 
@@ -50,10 +42,6 @@ defmodule Admint.MixProject do
       {:phoenix_live_view, "~> 0.15.0"},
       {:floki, ">= 0.27.0", only: :test},
       {:phoenix_html, "~> 2.11"},
-      {:phoenix_live_reload, "~> 1.2", only: :demo},
-      {:phoenix_live_dashboard, "~> 0.4", only: :demo},
-      {:telemetry_metrics, "~> 0.4", only: :demo},
-      {:telemetry_poller, "~> 0.4", only: :demo},
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
@@ -69,9 +57,7 @@ defmodule Admint.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      setup: ["deps.get", "ecto.setup", "cmd npm install --prefix assets"],
-      "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
-      "ecto.reset": ["ecto.drop", "ecto.setup"],
+      setup: ["deps.get", "cmd npm install --prefix assets"],
       test: [
         # "ecto.create --quiet", "ecto.migrate --quiet", 
         "test"

@@ -16,8 +16,9 @@ defmodule Admint do
       |> String.to_atom()
 
     quote do
-      scope unquote(route), AdmintWeb do
+      scope unquote(route), Admint.Web do
         unquote(block)
+
         pipe_through :admint_pipeline
 
         live "/", ContainerLive, unquote(path),
@@ -27,17 +28,39 @@ defmodule Admint do
         live "/:page", ContainerLive, unquote(path),
           as: :admint_page,
           session: %{"admint_module" => unquote(module), "base_path" => unquote(path)}
+
+        live "/:page/:id", ContainerLive, unquote(path),
+          as: :admint_page_view,
+          session: %{"admint_module" => unquote(module), "base_path" => unquote(path)}
+
+        live "/:page/:id/:action", ContainerLive, unquote(path),
+          as: :admint_page_action,
+          session: %{"admint_module" => unquote(module), "base_path" => unquote(path)}
       end
     end
   end
 
-  defmacro __using__(_opts) do
+  def router do
     quote do
       import Admint
 
       pipeline :admint_pipeline do
-        plug :put_root_layout, {AdmintWeb.LayoutView, :root}
+        plug :put_root_layout, {Admint.Web.LayoutView, :root}
       end
     end
+  end
+
+  def endpoint do
+    quote do
+      plug Plug.Static,
+        at: "/admint",
+        from: :admint,
+        gzip: false,
+        only: ~w(css fonts images js)
+    end
+  end
+
+  defmacro __using__(which) when is_atom(which) do
+    apply(__MODULE__, which, [])
   end
 end

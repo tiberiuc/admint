@@ -1,5 +1,5 @@
-defmodule AdmintWeb.ContainerLive do
-  use AdmintWeb, :live_view
+defmodule Admint.Web.ContainerLive do
+  use Admint.Web, :live_view
 
   @impl true
   def mount(params, session, socket) do
@@ -38,19 +38,28 @@ defmodule AdmintWeb.ContainerLive do
     first_page = Admint.Navigation.get_index_page_id(module)
 
     current_page = get_param_as_atom(params, "page", first_page)
-    action = get_param_as_atom(params, "action", :index)
+
+    current_id = params["id"]
+
+    default_action = if current_id != nil, do: :view, else: :index
+
+    action = get_param_as_atom(params, "action", default_action)
 
     %{
       current_page: current_page,
       route: %{
-        action: action
+        action: action,
+        id: current_id
       }
     }
   end
 
   defp get_param_as_atom(params, name, default) do
+    IO.inspect(params)
+
     cond do
       is_bitstring(params[name]) -> String.to_atom(params[name])
+      params[name] != nil -> params[name]
       true -> default
     end
   end
