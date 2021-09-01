@@ -1,11 +1,11 @@
-defmodule Admint.Navigation do
+defmodule Admint.Layout do
   @callback validate_opts(map()) :: :ok | {:error, String.t()}
-  @callback compile_opts(atom(), map()) :: {:ok, map()} | {:error, String.t()}
-  @callback render(atom(), map(), List.t()) :: any()
+  @callback compile_opts(map()) :: {:ok, map()} | {:error, String.t()}
+  @callback render(map(), List.t()) :: any()
 
   defmacro __using__(_opts) do
     quote do
-      @behaviour Admint.Navigation
+      @behaviour Admint.Layout
     end
   end
 
@@ -19,8 +19,8 @@ defmodule Admint.Navigation do
     apply(module, :compile_opts, [opts])
   end
 
-  @spec render(atom, atom, map, List.t()) :: any
-  def render(module, page_id, opts, path) do
-    apply(module, :render, [page_id, opts, path])
+  @spec render(atom, map, List.t()) :: any
+  def render(module, opts, path) do
+    apply(module, :render, [opts, path])
   end
 end

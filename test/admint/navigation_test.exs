@@ -2,6 +2,7 @@ defmodule Admint.Nvigation.Test do
   use ExUnit.Case
 
   describe "navigation" do
+    @tag :skip
     test "navigation data is returned correctly" do
       defmodule TestNavigationPage do
         use Admint.Definition
@@ -29,6 +30,7 @@ defmodule Admint.Nvigation.Test do
              ] = navigation
     end
 
+    @tag :skip
     test "navigation get_index_page_id" do
       defmodule TestNavigationIndexPageId do
         use Admint.Definition
@@ -51,6 +53,7 @@ defmodule Admint.Nvigation.Test do
       assert index_page_id == :page1
     end
 
+    @tag :skip
     test "navigation get_index_page_id when first is a category" do
       defmodule TestNavigationIndexPageIdCateg do
         use Admint.Definition
@@ -73,6 +76,7 @@ defmodule Admint.Nvigation.Test do
       assert index_page_id == :page3
     end
 
+    @tag :skip
     test "navigation get_index_page_id  when first is an empty category" do
       defmodule TestNavigationIndexPageIdEmptyCateg do
         use Admint.Definition
@@ -98,6 +102,7 @@ defmodule Admint.Nvigation.Test do
       assert index_page_id == :page1
     end
 
+    @tag :skip
     test "navigation get_page_by_id" do
       defmodule TestNavigationPageById do
         use Admint.Definition
@@ -126,6 +131,7 @@ defmodule Admint.Nvigation.Test do
   end
 
   describe "navigation opts " do
+    @tag :skip
     test "custom page title and category title" do
       defmodule TestNavigationCustomTitles do
         use Admint.Definition
@@ -156,6 +162,7 @@ defmodule Admint.Nvigation.Test do
       assert page_title == "Custom page title"
     end
 
+    @tag :skip
     test "page opts" do
       defmodule TestNavigationOpts do
         use Admint.Definition

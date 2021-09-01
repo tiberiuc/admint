@@ -1,6 +1,8 @@
 defmodule Admint.PageTest do
   use ExUnit.Case
 
+  @tag tibi: true
+  @tag :skip
   test "page opts" do
     defmodule TestNavigationOpts do
       use Admint.Definition

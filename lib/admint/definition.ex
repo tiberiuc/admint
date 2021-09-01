@@ -1,60 +1,83 @@
 defmodule Admint.Definition do
-  @admint_context_stack :__admint_context_stack__
-  @admint_definition :__admint_definition_data__
+  @moduledoc """
+
+  """
 
   defmacro __using__(_opts) do
-    caller = __CALLER__.module
-
     quote do
       import Admint.Definition
-      unquote(set_admint_context_stack([], caller))
+
+      Module.register_attribute(__MODULE__, :__admint__, accumulate: true)
+
+      @before_compile unquote(__MODULE__)
     end
   end
 
   @doc """
   Defines an admint configuration 
 
+  Admin macro define the root for all the configurations of an Admint.
+  It can be defined only once inside a module. Also you can have different modules 
+  implementing different admin entries
+
+
   An admin have two parts:
     header - ( optional ) define global configuratyoins for the admin
     navigation - define the navigation with all the pages inside the admin
 
-  Example:
+  ## Example
 
-    admin do
-      navigation do
-        page :posts, schema: MyApp.Post
+      defmodule MyAdmin do
+        use Admint.Definition
+
+        admin do
+
+          navigation do
+            page :posts, schema: MyApp.Post
+          end
+
+        end
+
       end
-    end
   """
-  defmacro admin(_opts \\ [], do: block) do
-    caller = __CALLER__.module
-    {file, line} = get_stacktrace(__CALLER__)
+  defmacro admin(do: block) do
+    stacktrace = get_stacktrace(__CALLER__)
 
     quote do
-      unquote(
-        check_stack_path(
-          [[]],
-          "\"admin\" can only be declared as root element",
-          file,
-          line,
-          caller
-        )
-      )
+      Module.put_attribute(__MODULE__, :__admint__, %{
+        node: :admin,
+        __stacktrace__: unquote(stacktrace)
+      })
 
-      unquote(set_admint_definition(caller))
-      unquote(push_admint_context_stack(:admin, caller))
       unquote(block)
-      unquote(pop_admint_context_stack(caller))
-      unquote(cleanup_admint_context_stack(caller))
 
-      def __admint_definition__() do
-        @__admint_definition_data__
-      end
+      Module.put_attribute(__MODULE__, :__admint__, %{
+        node: :end_admin,
+        __stacktrace__: unquote(stacktrace)
+      })
+    end
+  end
+
+  defmacro header(do: block) do
+    stacktrace = get_stacktrace(__CALLER__)
+
+    quote do
+      Module.put_attribute(__MODULE__, :__admint__, %{
+        node: :header,
+        __stacktrace__: unquote(stacktrace)
+      })
+
+      unquote(block)
+
+      Module.put_attribute(__MODULE__, :__admint__, %{
+        node: :end_header,
+        __stacktrace__: unquote(stacktrace)
+      })
     end
   end
 
   @doc """
-  Navigation defines all the pages inside admin. Pages can be in root or inside a category
+  Navigation defines all the pages inside admin. Pages can be in navigation or inside a category
 
   Example:
     
@@ -69,334 +92,451 @@ defmodule Admint.Definition do
       end
     end
   """
-  defmacro navigation(_opts \\ [], do: block) do
-    caller = __CALLER__.module
-    {file, line} = get_stacktrace(__CALLER__)
+  defmacro navigation(do: block) do
+    stacktrace = get_stacktrace(__CALLER__)
 
     quote do
-      unquote(
-        check_stack_path(
-          [[:admin]],
-          "\"navigation\" can only be declared as direct child of \"admin\"",
-          file,
-          line,
-          caller
-        )
-      )
+      Module.put_attribute(__MODULE__, :__admint__, %{
+        node: :navigation,
+        __stacktrace__: unquote(stacktrace)
+      })
 
-      unquote(push_admint_context_stack(:navigation, caller))
       unquote(block)
-      unquote(pop_admint_context_stack(caller))
+
+      Module.put_attribute(__MODULE__, :__admint__, %{
+        node: :end_navigation,
+        __stacktrace__: unquote(stacktrace)
+      })
     end
   end
 
-  defmacro category(title, opts \\ [], do: block) do
-    caller = __CALLER__.module
-    {file, line} = get_stacktrace(__CALLER__)
+  defmacro page(id, opts \\ [])
+
+  defmacro page(id, opts) when is_atom(id) do
+    stacktrace = get_stacktrace(__CALLER__)
+
+    quote do
+      Module.put_attribute(__MODULE__, :__admint__, %{
+        node: :page,
+        id: unquote(id),
+        opts: unquote(opts),
+        __stacktrace__: unquote(stacktrace)
+      })
+    end
+  end
+
+  defmacro page(id, _opts) do
+    stacktrace = get_stacktrace(__CALLER__)
+
+    raise_compiler_error(
+      """
+      Page id must be an atom, got #{inspect(id)}
+
+          Example:
+            
+            page :page_id
+      """,
+      stacktrace
+    )
+  end
+
+  defmacro category(title, opts \\ [], do_block)
+
+  defmacro category(title, opts, do: block) when is_binary(title) do
+    stacktrace = get_stacktrace(__CALLER__)
+    # replace with uuid's
     id = ("C" <> UUID.uuid4(:hex)) |> String.to_atom()
+    opts = opts |> Keyword.put(:title, title)
 
     quote do
-      unquote(
-        check_stack_path(
-          [[:navigation, :admin]],
-          "\"category\" can only be declared as direct child of \"navigation\"",
-          file,
-          line,
-          caller
-        )
-      )
-
-      unquote(
-        check_unique_ids(
-          caller,
-          id,
-          "ids must be unique, \"#{id}\" was already defined",
-          file,
-          line,
-          caller
-        )
-      )
-
-      unquote(push_admint_context_stack({:category, id}, caller))
-
-      path = unquote(get_admint_context_stack(caller))
-
-      map_opts = Enum.into(unquote(opts), %{}) |> Map.merge(%{title: unquote(title)})
-      data = %{type: :category, id: unquote(id), opts: map_opts, entries: []}
-
-      unquote(
-        update_admint_definition(
-          quote do
-            path
-          end,
-          quote do
-            data
-          end,
-          caller
-        )
-      )
+      Module.put_attribute(__MODULE__, :__admint__, %{
+        node: :category,
+        id: unquote(id),
+        opts: unquote(opts),
+        __stacktrace__: unquote(stacktrace)
+      })
 
       unquote(block)
-      unquote(pop_admint_context_stack(caller))
+
+      Module.put_attribute(__MODULE__, :__admint__, %{
+        node: :end_category,
+        id: unquote(id),
+        opts: unquote(opts),
+        __stacktrace__: unquote(stacktrace)
+      })
     end
   end
 
-  defmacro page(id, opts \\ []) do
-    check_valid_schema(__CALLER__, opts)
-    caller = __CALLER__.module
-    {file, line} = get_stacktrace(__CALLER__)
+  defmacro category(title, _opts, do: _block) do
+    stacktrace = get_stacktrace(__CALLER__)
 
-    quote do
-      unquote(
-        check_stack_path(
-          [[:navigation, :admin], [:category, :navigation, :admin]],
-          "\"page\" can only be declared as direct child of \"navigation\" or \"category\"",
-          file,
-          line,
-          caller
-        )
-      )
+    raise_compiler_error(
+      """
+      Category should have a title as string, got #{inspect(title)}
 
-      unquote(
-        check_unique_ids(
-          caller,
-          id,
-          "ids must be unique, \"#{id}\" was already defined",
-          file,
-          line,
-          caller
-        )
-      )
-
-      path = [{:page, unquote(id)} | unquote(get_admint_context_stack(caller))]
-
-      map_opts = Enum.into(unquote(opts), %{})
-      data = %{type: :page, id: unquote(id), opts: map_opts}
-
-      unquote(
-        update_admint_definition(
-          quote do
-            path
-          end,
-          quote do
-            data
-          end,
-          caller
-        )
-      )
-    end
+          Example:
+            
+            category "Category Title" do
+              ...
+            end
+      """,
+      stacktrace
+    )
   end
 
-  # ---- Private methods
-  defp expand_all(macro) do
-    macro |> Macro.prewalk(&Macro.expand(&1, __ENV__))
-  end
+  defmacro __before_compile__(env) do
+    compiled =
+      Module.get_attribute(env.module, :__admint__)
+      |> compile_definition()
 
-  defp set_admint_context_stack(value \\ [], caller) do
+    Module.put_attribute(env.module, :__admint_definition__, compiled)
+    Module.delete_attribute(env.module, :__admint__)
+
     quote do
-      Module.put_attribute(unquote(caller), unquote(@admint_context_stack), unquote(value))
-    end
-    |> expand_all()
-  end
-
-  defp get_admint_context_stack(caller) do
-    quote do
-      Module.get_attribute(unquote(caller), unquote(@admint_context_stack))
-    end
-    |> expand_all()
-  end
-
-  defp check_unique_ids(caller, id, message, file, line, caller) do
-    quote do
-      def = Module.get_attribute(unquote(caller), unquote(@admint_definition))
-
-      exists? =
-        def.navigation.entries
-        |> Enum.flat_map(fn entry ->
-          case entry do
-            {id, %{type: :page}} ->
-              [id]
-
-            {id, %{type: category, entries: entries}} ->
-              [id] ++
-                Enum.map(entries, fn {id, _} -> id end)
-          end
-        end)
-        |> Enum.find_value(&(&1 == unquote(id)))
-
-      if exists? do
-        unquote(raise_compiler_error(message, file, line))
+      def __admint_definition__() do
+        @__admint_definition__
       end
     end
-    |> expand_all()
   end
 
-  defp push_admint_context_stack(value, caller) do
-    quote do
-      stack = unquote(get_admint_context_stack(caller))
-      new_stack = [unquote(value) | stack]
+  # return a list with entry types
+  # like [:admin, :navigation, :page, :end_navigation, :end_admin]
+  defp sanitize_path(definition, index) do
+    definition
+    |> Enum.take(index)
+    |> Enum.map(fn {%{node: type}, _} -> type end)
+  end
 
-      unquote(
-        set_admint_context_stack(
-          quote do
-            new_stack
-          end,
-          caller
-        )
+  # return the tree path of element at position index in definition
+  # like [:category, :navigation, :admin]
+  defp get_definition_path(definition, index) do
+    definition
+    |> sanitize_path(index)
+    |> Enum.filter(fn entry -> entry != :page end)
+    |> Enum.reduce([], fn entry, acc ->
+      cond do
+        Atom.to_string(entry) |> String.starts_with?("end_") -> tl(acc)
+        true -> [entry | acc]
+      end
+    end)
+  end
+
+  defp validate_paths(path, valid_paths, message, stacktrace) do
+    if !Enum.member?(valid_paths, path) do
+      raise_compiler_error(message, stacktrace)
+    end
+  end
+
+  defp validate_once(definition, entry, index) do
+    path = definition |> Enum.take(index)
+
+    prev_declaration =
+      path |> Enum.find(fn {current_entry, _} -> current_entry.node == entry.node end)
+
+    if prev_declaration != nil do
+      {prev_declaration, _} = prev_declaration
+      {prev_file, prev_line} = prev_declaration.__stacktrace__
+
+      raise_compiler_error(
+        """
+        #{Atom.to_string(entry.node) |> String.capitalize()} can be declared only once. Previous declaration was at #{
+          prev_file
+        }:#{prev_line}
+
+        """,
+        entry.__stacktrace__
       )
     end
-    |> expand_all()
   end
 
-  defp pop_admint_context_stack(caller) do
-    quote do
-      stack = unquote(get_admint_context_stack(caller))
+  defp validate_unique_id(definition, index) do
+    {entry, _} = definition |> Enum.at(index)
 
-      with [last | rest] <- stack do
-        unquote(
-          set_admint_context_stack(
-            quote do
-              rest
-            end,
-            caller
-          )
-        )
+    found =
+      definition
+      |> Enum.take(index - 1)
+      |> Enum.find(fn {%{node: node} = current_entry, _} ->
+        if entry.node == node, do: entry.id == current_entry.id, else: false
+      end)
 
-        last
+    if found do
+      {%{__stacktrace__: {file, line}, id: id}, _} = found
+      node = entry.node |> Atom.to_string() |> String.capitalize()
+
+      raise_compiler_error(
+        "#{node} with the same id ':#{id}' was already defined here: #{file} #{line}",
+        entry.__stacktrace__
+      )
+    end
+  end
+
+  defp compile_definition(definition) do
+    compiled = %{pages: %{}, categories: %{}, navigation: []}
+
+    definition =
+      definition
+      |> Enum.reverse()
+      |> Enum.zip(0..(Enum.count(definition) - 1))
+
+    definition
+    |> Enum.reduce(compiled, fn {entry, index}, acc ->
+      path = get_definition_path(definition, index)
+      compile_entry(entry.node, definition, path, entry, index, acc)
+    end)
+  end
+
+  defp compile_entry(:admin, definition, path, entry, index, acc) do
+    validate_paths(
+      path,
+      [[]],
+      """
+      Admin can only be declared as root level
+
+        Example:
+
+          admin
+            navigation do
+              page :first_page
+              
+              category "Category Title" do
+                page :second_page
+              end
+
+            end
+          end
+      """,
+      entry.__stacktrace__
+    )
+
+    validate_once(definition, entry, index)
+
+    acc
+  end
+
+  defp compile_entry(:end_admin, _definition, _path, _entry, _index, acc), do: acc
+
+  defp compile_entry(:navigation, definition, path, entry, index, acc) do
+    validate_paths(
+      path,
+      [[:admin]],
+      """
+      Navigation must be declared only inside admin",
+
+        Example:
+
+          admin
+            navigation do
+              page :first_page
+              
+              category "Category Title" do
+                page :second_page
+              end
+
+            end
+          end
+      """,
+      entry.__stacktrace__
+    )
+
+    validate_once(definition, entry, index)
+
+    acc
+  end
+
+  defp compile_entry(:end_navigation, _definition, _path, _entry, _index, acc), do: acc
+
+  defp compile_entry(:header, definition, path, entry, index, acc) do
+    validate_paths(
+      path,
+      [[:admin]],
+      """
+      Header must be declared only inside admin
+
+        Example:
+
+          admin
+            header do
+              ...
+            end
+          end
+      """,
+      entry.__stacktrace__
+    )
+
+    validate_once(definition, entry, index)
+
+    acc
+  end
+
+  defp compile_entry(:end_header, _definition, _path, _entry, _index, acc), do: acc
+
+  defp compile_entry(:category, _definition, path, entry, _index, acc) do
+    validate_paths(
+      path,
+      [[:navigation, :admin]],
+      """
+      Category can only be declared only inside navigation
+
+        Example:
+
+          admin
+            navigation
+              category "Category Title" do
+                page :second_page
+              end
+
+            end
+          end
+      """,
+      entry.__stacktrace__
+    )
+
+    entry = sanitize_entry(entry)
+
+    category_id = entry.id
+
+    %{
+      acc
+      | navigation: acc.navigation ++ [{:category, category_id, []}],
+        categories: Map.put(acc.categories, category_id, entry)
+    }
+  end
+
+  defp compile_entry(:end_category, _definition, _path, _entry, _index, acc), do: acc
+
+  defp compile_entry(:page, definition, path, entry, index, acc) do
+    validate_paths(
+      path,
+      [[:navigation, :admin], [:category, :navigation, :admin]],
+      """
+      Page can only be declared inside navigation or category
+
+        Example:
+
+          admin
+            navigation
+              page :first_page
+
+              category "Category Title" do
+                page :second_page
+              end
+
+            end
+          end
+      """,
+      entry.__stacktrace__
+    )
+
+    validate_unique_id(definition, index)
+
+    page_id = entry.id
+
+    entry = sanitize_entry(entry)
+
+    entry = compile_page_opts(entry)
+
+    with_pages = %{acc | pages: Map.put(acc.pages, page_id, entry)}
+
+    [last_path | _] = path
+
+    case last_path do
+      :category ->
+        # get last category
+        {%{id: category_id}, _} =
+          definition
+          |> Enum.take(index)
+          |> Enum.reverse()
+          |> Enum.find(fn {entry, _} -> entry.node == :category end)
+
+        navigation =
+          with_pages.navigation
+          |> Enum.map(fn entry ->
+            with {:category, id, pages} <- entry do
+              if id == category_id do
+                {:category, category_id, pages ++ [{:page, page_id}]}
+              else
+                entry
+              end
+            else
+              _ -> entry
+            end
+          end)
+
+        %{with_pages | navigation: navigation}
+
+      _ ->
+        %{with_pages | navigation: acc.navigation ++ [{:page, page_id}]}
+    end
+  end
+
+  defp compile_entry(_, _definition, _path, entry, _index, _acc) do
+    raise_compiler_error("Unexpected #{inspect(entry)}", entry.__stacktrace__)
+  end
+
+  defp compile_page_opts(entry) do
+    opts = entry.opts
+
+    module = opts |> Map.get(:module, Admint.PageImpl)
+    opts = opts |> Map.put(:module, module) |> Map.put(:id, entry.id)
+
+    if !is_atom(module),
+      do: raise_compiler_error("Expected a module in page #{entry.id}", entry.__stacktrace__)
+
+    with {:error, message} <- Admint.Page.validate_opts(module, opts) do
+      raise_compiler_error(message, entry.__stacktrace__)
+    end
+
+    opts =
+      with {:ok, compiled_opts} <- Admint.Page.compile_opts(module, opts) do
+        compiled_opts
       else
-        _ -> nil
+        {:error, message} -> raise_compiler_error(message, entry.__stacktrace__)
       end
-    end
-    |> expand_all()
+
+    opts =
+      opts
+      |> Map.put(:title, Map.get(opts, :title, Admint.Utils.humanize(entry.id)))
+
+    %{entry | opts: opts}
   end
 
-  defp cleanup_admint_context_stack(caller) do
-    quote do
-      Module.delete_attribute(unquote(caller), unquote(@admint_context_stack))
+  defp sanitize_entry(entry) do
+    opts = entry.opts |> Keyword.keys()
+
+    duplicates_opts = Enum.uniq(opts -- Enum.uniq(opts))
+
+    if duplicates_opts != [] do
+      raise_compiler_error(
+        """
+        In #{entry.node} following options are duplicate:
+
+            #{
+          duplicates_opts
+          |> Enum.map(fn o -> ":#{Atom.to_string(o)}" end)
+          |> Enum.intersperse(", ")
+        }
+
+        Please define them only once to avoid ambiquity
+        """,
+        entry.__stacktrace__
+      )
     end
-    |> expand_all()
+
+    opts =
+      entry.opts
+      |> Enum.into(%{})
+
+    entry
+    |> Map.delete(:node)
+    |> Map.put(:opts, opts)
   end
 
-  defp check_stack_path(paths, message, file, line, caller) do
-    quote do
-      stack = unquote(get_admint_context_stack(caller))
-
-      if stack == nil do
-        unquote(
-          raise_compiler_error(
-            "admin  was already defined, all configurations must be defined inside \"admin\"",
-            file,
-            line
-          )
-        )
-      end
-
-      stack_path =
-        stack
-        |> Enum.map(fn entry ->
-          with {id, _} <- entry do
-            id
-          else
-            _ -> entry
-          end
-        end)
-
-      valid = unquote(paths) |> Enum.reduce(false, fn path, acc -> acc || path == stack_path end)
-
-      if not valid do
-        unquote(raise_compiler_error(message, file, line))
-      end
-    end
-    |> expand_all()
+  defp raise_compiler_error(message, {file, line}) do
+    raise CompileError, file: file, line: line, description: message
   end
 
   defp get_stacktrace(caller) do
     [{_, _, _, [file: file, line: line]}] = Macro.Env.stacktrace(caller)
     {file, line}
-  end
-
-  defp raise_compiler_error(message, file, line) do
-    quote do
-      raise CompileError, file: unquote(file), line: unquote(line), description: unquote(message)
-    end
-    |> expand_all()
-  end
-
-  defp check_valid_schema(caller, opts) do
-    schema = Keyword.get(opts, :schema)
-
-    with {_, _, _module} <- schema do
-      true
-    else
-      nil ->
-        true
-
-      _ ->
-        [{_, _, _, [file: file, line: line]}] = Macro.Env.stacktrace(caller)
-
-        raise CompileError,
-          file: file,
-          line: line,
-          description: "Expected module with Ecto schema but got #{inspect(schema)}"
-    end
-  end
-
-  defp set_admint_definition(caller, value \\ nil) do
-    quote do
-      value =
-        case unquote(value) do
-          nil ->
-            %{
-              header: %{},
-              navigation: %{entries: []}
-            }
-
-          _ ->
-            unquote(value)
-        end
-
-      Module.register_attribute(unquote(caller), unquote(@admint_definition), persist: true)
-      Module.put_attribute(unquote(caller), unquote(@admint_definition), value)
-    end
-    |> expand_all()
-  end
-
-  defp definition_path_from_stack(path) do
-    quote do
-      unquote(path)
-      |> Enum.reverse()
-      |> Enum.flat_map(fn value ->
-        case value do
-          :admin ->
-            []
-
-          :navigation ->
-            [:navigation]
-
-          {:category, id} ->
-            [:entries, id]
-
-          {:page, id} ->
-            [:entries, id]
-
-          _ ->
-            [value]
-        end
-      end)
-    end
-    |> expand_all()
-  end
-
-  defp update_admint_definition(path, value, caller) do
-    quote do
-      path = unquote(definition_path_from_stack(path))
-
-      definition =
-        Module.get_attribute(unquote(caller), unquote(@admint_definition))
-        |> put_in(path, unquote(value))
-
-      Module.put_attribute(unquote(caller), unquote(@admint_definition), definition)
-    end
-    |> expand_all()
   end
 end

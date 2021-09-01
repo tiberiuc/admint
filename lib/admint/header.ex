@@ -1,11 +1,11 @@
-defmodule Admint.Navigation do
+defmodule Admint.Header do
   @callback validate_opts(map()) :: :ok | {:error, String.t()}
-  @callback compile_opts(atom(), map()) :: {:ok, map()} | {:error, String.t()}
+  @callback compile_opts(map()) :: {:ok, map()} | {:error, String.t()}
   @callback render(atom(), map(), List.t()) :: any()
 
   defmacro __using__(_opts) do
     quote do
-      @behaviour Admint.Navigation
+      @behaviour Admint.Header
     end
   end
 

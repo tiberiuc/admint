@@ -60,7 +60,17 @@ defmodule Admint do
     end
   end
 
+  def definition do
+    quote do
+      use Admint.Definition
+    end
+  end
+
   defmacro __using__(which) when is_atom(which) do
     apply(__MODULE__, which, [])
+  end
+
+  defmacro __using__(which) when is_list(which) do
+    which |> Enum.each(&apply(__MODULE__, &1, []))
   end
 end
