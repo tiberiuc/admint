@@ -2,6 +2,19 @@ defmodule Admint.Definition do
   @moduledoc """
 
   """
+  alias Admint.Utils
+
+  @type t :: %__MODULE__{
+          __stacktrace__: Admint.Stacktrace.t(),
+          opts: map,
+          header: Admint.Header.t(),
+          navigation: Admint.Navigation.t(),
+          categories: %{_: Admint.Category.t()} | %{},
+          pages: %{_: Admint.Page.t()} | %{}
+        }
+
+  @enforce_keys [:__stacktrace__, :opts, :header, :navigation, :pages, :categories]
+  defstruct [:__stacktrace__, :opts, :header, :navigation, :pages, :categories]
 
   defmacro __using__(_opts) do
     quote do
@@ -40,13 +53,14 @@ defmodule Admint.Definition do
 
       end
   """
-  defmacro admin(do: block) do
+  defmacro admin(opts \\ [], do: block) do
     stacktrace = get_stacktrace(__CALLER__)
 
     quote do
       Module.put_attribute(__MODULE__, :__admint__, %{
         node: :admin,
-        __stacktrace__: unquote(stacktrace)
+        __stacktrace__: unquote(stacktrace),
+        opts: unquote(opts)
       })
 
       unquote(block)
@@ -58,20 +72,14 @@ defmodule Admint.Definition do
     end
   end
 
-  defmacro header(do: block) do
+  defmacro header(opts \\ []) do
     stacktrace = get_stacktrace(__CALLER__)
 
     quote do
       Module.put_attribute(__MODULE__, :__admint__, %{
         node: :header,
-        __stacktrace__: unquote(stacktrace)
-      })
-
-      unquote(block)
-
-      Module.put_attribute(__MODULE__, :__admint__, %{
-        node: :end_header,
-        __stacktrace__: unquote(stacktrace)
+        __stacktrace__: unquote(stacktrace),
+        opts: unquote(opts)
       })
     end
   end
@@ -92,13 +100,14 @@ defmodule Admint.Definition do
       end
     end
   """
-  defmacro navigation(do: block) do
+  defmacro navigation(opts \\ [], do: block) do
     stacktrace = get_stacktrace(__CALLER__)
 
     quote do
       Module.put_attribute(__MODULE__, :__admint__, %{
         node: :navigation,
-        __stacktrace__: unquote(stacktrace)
+        __stacktrace__: unquote(stacktrace),
+        opts: unquote(opts)
       })
 
       unquote(block)
@@ -184,6 +193,18 @@ defmodule Admint.Definition do
     )
   end
 
+  @spec get_definition(Module.t()) :: Admin.Definition.t()
+  def get_definition(module) do
+    apply(module, :__admint_definition__, [])
+  end
+
+  @spec get_navigation(Module.t()) :: Admint.Navigation.t()
+  def get_navigation(module) do
+    definition = get_definition(module)
+
+    definition.navigation
+  end
+
   defmacro __before_compile__(env) do
     compiled =
       Module.get_attribute(env.module, :__admint__)
@@ -212,7 +233,7 @@ defmodule Admint.Definition do
   defp get_definition_path(definition, index) do
     definition
     |> sanitize_path(index)
-    |> Enum.filter(fn entry -> entry != :page end)
+    |> Enum.filter(fn entry -> entry != :page && entry != :header end)
     |> Enum.reduce([], fn entry, acc ->
       cond do
         Atom.to_string(entry) |> String.starts_with?("end_") -> tl(acc)
@@ -270,8 +291,41 @@ defmodule Admint.Definition do
     end
   end
 
+  @spec empty_stacktrace() :: Admint.Stacktrace.t()
+  defp empty_stacktrace(), do: {"", 0}
+
+  @spec empty_navigation() :: Admint.Navigation.t()
+  defp empty_navigation() do
+    %Admint.Navigation{
+      __stacktrace__: empty_stacktrace(),
+      entries: [],
+      opts: %{module: nil}
+    }
+  end
+
+  @spec empty_header() :: Admint.Header.t()
+  defp empty_header() do
+    %Admint.Header{
+      __stacktrace__: empty_stacktrace(),
+      opts: %{module: nil}
+    }
+  end
+
+  @spec create_empty_definition() :: __MODULE__.t()
+  defp create_empty_definition() do
+    %__MODULE__{
+      __stacktrace__: empty_stacktrace(),
+      opts: %{module: nil},
+      header: empty_header(),
+      navigation: empty_navigation(),
+      categories: %{},
+      pages: %{}
+    }
+  end
+
+  @spec compile_definition(list) :: __MODULE__.t()
   defp compile_definition(definition) do
-    compiled = %{pages: %{}, categories: %{}, navigation: []}
+    compiled = create_empty_definition()
 
     definition =
       definition
@@ -283,6 +337,24 @@ defmodule Admint.Definition do
       path = get_definition_path(definition, index)
       compile_entry(entry.node, definition, path, entry, index, acc)
     end)
+  end
+
+  @spec run_opts_processing(map, map) :: map
+  defp run_opts_processing(opts, entry) do
+    opts =
+      with :ok <- apply(opts.module, :validate_opts, [opts]),
+           {:ok, opts} <- apply(opts.module, :compile_opts, [opts]) do
+        opts
+      else
+        {:error, message} -> raise_compiler_error(message, entry.__stacktrace__)
+      end
+
+    opts
+  end
+
+  @spec get_default_module(map, atom) :: map
+  defp get_default_module(definition, id) do
+    definition.opts[id]
   end
 
   defp compile_entry(:admin, definition, path, entry, index, acc) do
@@ -310,7 +382,12 @@ defmodule Admint.Definition do
 
     validate_once(definition, entry, index)
 
-    acc
+    entry = sanitize_entry(entry)
+    opts = Utils.set_default_opts(entry.opts, [{:module, Admint.Layout}])
+
+    opts = run_opts_processing(opts, entry)
+
+    %{acc | __stacktrace__: entry.__stacktrace__, opts: opts}
   end
 
   defp compile_entry(:end_admin, _definition, _path, _entry, _index, acc), do: acc
@@ -340,7 +417,17 @@ defmodule Admint.Definition do
 
     validate_once(definition, entry, index)
 
-    acc
+    entry = sanitize_entry(entry)
+
+    opts =
+      Utils.set_default_opts(entry.opts, [{:module, get_default_module(acc, :navigation_module)}])
+
+    opts = run_opts_processing(opts, entry)
+
+    %{
+      acc
+      | navigation: %{acc.navigation | __stacktrace__: entry.__stacktrace__, opts: opts}
+    }
   end
 
   defp compile_entry(:end_navigation, _definition, _path, _entry, _index, acc), do: acc
@@ -365,10 +452,15 @@ defmodule Admint.Definition do
 
     validate_once(definition, entry, index)
 
-    acc
-  end
+    entry = sanitize_entry(entry)
 
-  defp compile_entry(:end_header, _definition, _path, _entry, _index, acc), do: acc
+    opts =
+      Utils.set_default_opts(entry.opts, [{:module, get_default_module(acc, :header_module)}])
+
+    opts = run_opts_processing(opts, entry)
+
+    %{acc | header: %{acc.header | __stacktrace__: entry.__stacktrace__, opts: opts}}
+  end
 
   defp compile_entry(:category, _definition, path, entry, _index, acc) do
     validate_paths(
@@ -397,8 +489,11 @@ defmodule Admint.Definition do
 
     %{
       acc
-      | navigation: acc.navigation ++ [{:category, category_id, []}],
-        categories: Map.put(acc.categories, category_id, entry)
+      | navigation: %{
+          acc.navigation
+          | entries: acc.navigation.entries ++ [{:category, category_id, []}]
+        },
+        categories: Map.put(acc.categories, category_id, struct(Admint.Category, entry))
     }
   end
 
@@ -433,9 +528,22 @@ defmodule Admint.Definition do
 
     entry = sanitize_entry(entry)
 
-    entry = compile_page_opts(entry)
+    opts =
+      Utils.set_default_opts(entry.opts, [
+        {:module, get_default_module(acc, :page_module)},
+        {:id, page_id}
+      ])
 
-    with_pages = %{acc | pages: Map.put(acc.pages, page_id, entry)}
+    opts = run_opts_processing(opts, entry)
+
+    with_pages = %{
+      acc
+      | pages:
+          Map.put(acc.pages, page_id, %Admint.Page{
+            __stacktrace__: entry.__stacktrace__,
+            opts: opts
+          })
+    }
 
     [last_path | _] = path
 
@@ -448,56 +556,38 @@ defmodule Admint.Definition do
           |> Enum.reverse()
           |> Enum.find(fn {entry, _} -> entry.node == :category end)
 
-        navigation =
+        navigation = %{
           with_pages.navigation
-          |> Enum.map(fn entry ->
-            with {:category, id, pages} <- entry do
-              if id == category_id do
-                {:category, category_id, pages ++ [{:page, page_id}]}
-              else
-                entry
-              end
-            else
-              _ -> entry
-            end
-          end)
+          | entries:
+              with_pages.navigation.entries
+              |> Enum.map(fn entry ->
+                with {:category, id, pages} <- entry do
+                  if id == category_id do
+                    {:category, category_id, pages ++ [{:page, page_id}]}
+                  else
+                    entry
+                  end
+                else
+                  _ -> entry
+                end
+              end)
+        }
 
         %{with_pages | navigation: navigation}
 
       _ ->
-        %{with_pages | navigation: acc.navigation ++ [{:page, page_id}]}
+        %{
+          with_pages
+          | navigation: %{
+              with_pages.navigation
+              | entries: with_pages.navigation.entries ++ [{:page, page_id}]
+            }
+        }
     end
   end
 
   defp compile_entry(_, _definition, _path, entry, _index, _acc) do
     raise_compiler_error("Unexpected #{inspect(entry)}", entry.__stacktrace__)
-  end
-
-  defp compile_page_opts(entry) do
-    opts = entry.opts
-
-    module = opts |> Map.get(:module, Admint.PageImpl)
-    opts = opts |> Map.put(:module, module) |> Map.put(:id, entry.id)
-
-    if !is_atom(module),
-      do: raise_compiler_error("Expected a module in page #{entry.id}", entry.__stacktrace__)
-
-    with {:error, message} <- Admint.Page.validate_opts(module, opts) do
-      raise_compiler_error(message, entry.__stacktrace__)
-    end
-
-    opts =
-      with {:ok, compiled_opts} <- Admint.Page.compile_opts(module, opts) do
-        compiled_opts
-      else
-        {:error, message} -> raise_compiler_error(message, entry.__stacktrace__)
-      end
-
-    opts =
-      opts
-      |> Map.put(:title, Map.get(opts, :title, Admint.Utils.humanize(entry.id)))
-
-    %{entry | opts: opts}
   end
 
   defp sanitize_entry(entry) do

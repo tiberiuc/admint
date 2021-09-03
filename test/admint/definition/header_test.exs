@@ -9,8 +9,7 @@ defmodule Admint.Definition.HeaderTest do
             use Admint, :definition
 
             admin do
-              header do
-              end
+              header()
             end
           end
         end
@@ -28,9 +27,8 @@ defmodule Admint.Definition.HeaderTest do
                        use Admint, :definition
 
                        admin do
-                         header do
-                           header do
-                           end
+                         navigation do
+                           header()
                          end
                        end
                      end

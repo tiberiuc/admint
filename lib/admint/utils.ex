@@ -58,17 +58,57 @@ defmodule Admint.Utils do
     end
   end
 
+  @spec humanize(atom) :: String.t()
   def humanize(val) when is_atom(val) do
     Atom.to_string(val)
     |> humanize()
   end
 
+  @spec humanize(String.t()) :: String.t()
   def humanize(val) when is_bitstring(val) do
     val
     |> String.replace("_", " ")
     |> String.split(" ")
     |> Enum.map(&String.capitalize/1)
     |> Enum.join(" ")
+  end
+
+  @spec validate_opts(map, map, map) :: :ok | {:error, String.t()}
+  def validate_opts(opts, mandatory, optional) do
+    opts_keys = Map.keys(opts)
+
+    missing_mandatory = mandatory -- opts_keys
+    unknown_opts = opts_keys -- (mandatory ++ optional)
+
+    cond do
+      missing_mandatory != [] ->
+        {:error, "Missing mandatory options #{inspect(missing_mandatory)}"}
+
+      unknown_opts != [] ->
+        {:error, "Unknown options #{inspect(unknown_opts)}"}
+
+      true ->
+        :ok
+    end
+  end
+
+  @spec set_default_opts(map, {atom, any}) :: map
+  def set_default_opts(opts, {key, default_value}) do
+    {_old, opts} =
+      opts
+      |> Map.get_and_update(key, fn current_value ->
+        {current_value, if(current_value != nil, do: current_value, else: default_value)}
+      end)
+
+    opts
+  end
+
+  @spec set_default_opts(map, [{atom, any}]) :: map
+  def set_default_opts(opts, default_values) do
+    default_values
+    |> Enum.reduce(opts, fn default_value, acc ->
+      set_default_opts(acc, default_value)
+    end)
   end
 
   defp env(key, default \\ nil) do

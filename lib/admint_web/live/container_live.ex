@@ -5,12 +5,12 @@ defmodule Admint.Web.ContainerLive do
   def mount(params, session, socket) do
     module = session["admint_module"]
 
-    navigation = Admint.Navigation.get(module)
+    navigation = Admint.Definition.get_navigation(module)
 
     admint =
       %{
         module: module,
-        base_path: session["base_path"],
+        path: session["path"],
         navigation: navigation
       }
       |> Map.merge(get_current_page_route(params, module))

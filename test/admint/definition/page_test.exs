@@ -10,7 +10,7 @@ defmodule Admint.Definition.PageTest do
 
             admin do
               navigation do
-                page :test_page
+                page :test_page, schema: MyApp.Schema
               end
             end
           end
@@ -30,7 +30,7 @@ defmodule Admint.Definition.PageTest do
             admin do
               navigation do
                 category "category" do
-                  page :test_page
+                  page :test_page, schema: MyApp.Schema
                 end
               end
             end
@@ -99,10 +99,11 @@ defmodule Admint.Definition.PageTest do
 
                        admin do
                          navigation do
-                           page :page1
-                           page :page2
+                           page :page1, schema: MyApp.Schema
 
-                           page :page1
+                           page :page2, schema: MyApp.Schema
+
+                           page :page1, schema: MyApp.Schema
                          end
                        end
                      end
@@ -118,11 +119,12 @@ defmodule Admint.Definition.PageTest do
 
                        admin do
                          navigation do
-                           page :page1
-                           page :page2
+                           page :page1, schema: MyApp.Schema
+
+                           page :page2, schema: MyApp.Schema
 
                            category "category" do
-                             page :page1
+                             page :page1, schema: MyApp.Schema
                            end
                          end
                        end

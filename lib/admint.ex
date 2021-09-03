@@ -21,21 +21,24 @@ defmodule Admint do
 
         pipe_through :admint_pipeline
 
-        live "/", ContainerLive, unquote(path),
+        # live "/", ContainerLive, unquote(path),
+        #           as: :admint,
+        #           session: %{"admint_module" => unquote(module), "base_path" => unquote(path)}
+        # 
+        #         live "/:page", ContainerLive, unquote(path),
+        #           as: :admint_page,
+        #           session: %{"admint_module" => unquote(module), "base_path" => unquote(path)}
+        # 
+        #         live "/:page/:id", ContainerLive, unquote(path),
+        #           as: :admint_page_view,
+        #           session: %{"admint_module" => unquote(module), "base_path" => unquote(path)}
+        # 
+        #         live "/:page/:id/:action", ContainerLive, unquote(path),
+        #           as: :admint_page_action,
+        #           session: %{"admint_module" => unquote(module), "base_path" => unquote(path)}
+        live "/*", ContainerLive, unquote(path),
           as: :admint,
-          session: %{"admint_module" => unquote(module), "base_path" => unquote(path)}
-
-        live "/:page", ContainerLive, unquote(path),
-          as: :admint_page,
-          session: %{"admint_module" => unquote(module), "base_path" => unquote(path)}
-
-        live "/:page/:id", ContainerLive, unquote(path),
-          as: :admint_page_view,
-          session: %{"admint_module" => unquote(module), "base_path" => unquote(path)}
-
-        live "/:page/:id/:action", ContainerLive, unquote(path),
-          as: :admint_page_action,
-          session: %{"admint_module" => unquote(module), "base_path" => unquote(path)}
+          session: %{"definition" => unquote(module), "path" => unquote(path)}
       end
     end
   end
@@ -45,7 +48,7 @@ defmodule Admint do
       import Admint
 
       pipeline :admint_pipeline do
-        plug :put_root_layout, {Admint.Web.LayoutView, :root}
+        plug :put_root_layout, {Admint.Web.RootLayoutView, :root}
       end
     end
   end

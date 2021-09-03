@@ -1,29 +1,21 @@
 defmodule Admint.PageImpl do
   use Admint.Page
+  alias Admint.Utils
 
   import Ecto.Query
 
   @mandatory_opts [:module, :id]
-  @options_opts [:schema, :title, :render, :resource]
+  @optional_opts [
+    {:schema, nil},
+    {:title, nil},
+    {:render, nil}
+  ]
 
   @impl true
   @spec validate_opts(map) :: :ok | {:error, String.t()}
   def validate_opts(opts) do
-    opts_keys = Map.keys(opts)
-
-    missing_mandatory = @mandatory_opts -- opts_keys
-    unknown_opts = opts_keys -- (@mandatory_opts ++ @options_opts)
-
-    cond do
-      missing_mandatory != [] ->
-        {:error, "Missing mandatory options #{inspect(missing_mandatory)}"}
-
-      unknown_opts != [] ->
-        {:error, "Unknown options #{inspect(unknown_opts)}"}
-
-      true ->
-        :ok
-    end
+    optionals = @optional_opts |> Enum.map(fn {id, _} -> id end)
+    Utils.validate_opts(opts, @mandatory_opts, optionals)
   end
 
   @impl true
@@ -31,9 +23,17 @@ defmodule Admint.PageImpl do
   def compile_opts(opts) do
     opts =
       opts
-      |> Map.put(:title, Map.get(opts, :title, Admint.Utils.humanize(opts.id)))
+      |> Utils.set_default_opts(@optional_opts)
+      |> Utils.set_default_opts({:title, Utils.humanize(opts.id)})
 
-    {:ok, opts}
+    cond do
+      opts.schema == nil and opts.render == nil ->
+        {:error, "At least one of :schema or :render must be defined"}
+
+      true ->
+        opts = opts |> Utils.set_default_opts({:render, Admint.Web.IndexPage})
+        {:ok, opts}
+    end
   end
 
   @impl true

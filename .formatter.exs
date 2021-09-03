@@ -1,7 +1,10 @@
 locals_without_parens = [
   # admin
   page: :*,
-  category: 1
+  category: 1,
+  admin: 1,
+  header: 1,
+  navigation: 1
 ]
 
 [
