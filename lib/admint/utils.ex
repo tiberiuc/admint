@@ -47,6 +47,15 @@ defmodule Admint.Utils do
     end
   end
 
+  @spec str_as_existing_atom(String.t()) :: {:ok, atom()} | {:not_found}
+  def str_as_existing_atom(str) do
+    try do
+      {:ok, String.to_existing_atom(str)}
+    rescue
+      ArgumentError -> {:not_found}
+    end
+  end
+
   @spec repo() :: atom()
   def repo() do
     case env(:ecto_repo) do
@@ -73,7 +82,7 @@ defmodule Admint.Utils do
     |> Enum.join(" ")
   end
 
-  @spec validate_opts(map, map, map) :: :ok | {:error, String.t()}
+  @spec validate_opts(map, [atom()], [atom()]) :: :ok | {:error, String.t()}
   def validate_opts(opts, mandatory, optional) do
     opts_keys = Map.keys(opts)
 
@@ -92,7 +101,7 @@ defmodule Admint.Utils do
     end
   end
 
-  @spec set_default_opts(map, {atom, any}) :: map
+  @spec set_default_opts(map(), {atom(), term()}) :: map
   def set_default_opts(opts, {key, default_value}) do
     {_old, opts} =
       opts
@@ -103,7 +112,7 @@ defmodule Admint.Utils do
     opts
   end
 
-  @spec set_default_opts(map, [{atom, any}]) :: map
+  @spec set_default_opts(map(), [{atom(), term()}]) :: map
   def set_default_opts(opts, default_values) do
     default_values
     |> Enum.reduce(opts, fn default_value, acc ->

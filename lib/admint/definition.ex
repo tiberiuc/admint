@@ -193,16 +193,52 @@ defmodule Admint.Definition do
     )
   end
 
+  @doc """
+  Get the admint definition from a module
+  """
   @spec get_definition(Module.t()) :: Admin.Definition.t()
   def get_definition(module) do
     apply(module, :__admint_definition__, [])
   end
 
+  @doc """
+  Get the navigation definition from a module
+  """
   @spec get_navigation(Module.t()) :: Admint.Navigation.t()
   def get_navigation(module) do
     definition = get_definition(module)
 
     definition.navigation
+  end
+
+  @doc """
+  Get the header definition from a module
+  """
+  @spec get_header(Module.t()) :: Admint.Navigation.t()
+  def get_header(module) do
+    definition = get_definition(module)
+
+    definition.header
+  end
+
+  @doc """
+  Get pages definition from a module
+  """
+  @spec get_pages(Module.t()) :: Admint.Navigation.t()
+  def get_pages(module) do
+    definition = get_definition(module)
+
+    definition.pages
+  end
+
+  @doc """
+  Get categories definition from a module
+  """
+  @spec get_categories(Module.t()) :: Admint.Navigation.t()
+  def get_categories(module) do
+    definition = get_definition(module)
+
+    definition.categories
   end
 
   defmacro __before_compile__(env) do

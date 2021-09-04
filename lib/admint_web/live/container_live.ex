@@ -1,19 +1,20 @@
 defmodule Admint.Web.ContainerLive do
   use Admint.Web, :live_view
 
+  alias Admint.Utils
+
   @impl true
   def mount(params, session, socket) do
-    module = session["admint_module"]
+    admint = session["admint"]
+    module = admint.module
 
     navigation = Admint.Definition.get_navigation(module)
 
     admint =
-      %{
-        module: module,
-        path: session["path"],
-        navigation: navigation
-      }
-      |> Map.merge(get_current_page_route(params, module))
+      admint
+      |> Map.put(:navigation, navigation)
+      |> Map.put(:params, sanitize_params(params))
+      |> set_current_page()
 
     assigns =
       socket
@@ -27,40 +28,46 @@ defmodule Admint.Web.ContainerLive do
     assigns = socket.assigns
     admint = assigns.admint
 
-    module = admint.module
-
-    admint = admint |> Map.merge(get_current_page_route(params, module))
+    admint =
+      admint
+      |> Map.put(:params, sanitize_params(params))
+      |> set_current_page()
+      |> IO.inspect()
 
     {:noreply, assign(socket, admint: admint)}
   end
 
-  defp get_current_page_route(params, module) do
-    first_page = Admint.Navigation.get_index_page_id(module)
-
-    current_page = get_param_as_atom(params, "page", first_page)
-
-    current_id = params["id"]
-
-    default_action = if current_id != nil, do: :view, else: :index
-
-    action = get_param_as_atom(params, "action", default_action)
+  @spec sanitize_params(atom()) :: atom()
+  defp sanitize_params(params) do
+    path = params["admint_path"] |> IO.inspect(label: "----")
+    query = params |> Map.delete("admint_path")
 
     %{
-      current_page: current_page,
-      route: %{
-        action: action,
-        id: current_id
-      }
+      path: path,
+      query: query
     }
   end
 
-  defp get_param_as_atom(params, name, default) do
-    IO.inspect(params)
+  @spec set_current_page(atom()) :: atom() | :not_found
+  defp set_current_page(admint) do
+    path =
+      admint.params.path
+      |> IO.inspect()
 
-    cond do
-      is_bitstring(params[name]) -> String.to_atom(params[name])
-      params[name] != nil -> params[name]
-      true -> default
+    with {:ok, page_id} <- Utils.str_as_existing_atom(hd(path)) do
+      IO.inspect(page_id)
+
+      page =
+        Admint.Definition.get_pages(admint.module)
+        |> IO.inspect()
+        # |> Map.get(:pages)
+        |> Map.get(page_id)
+
+      page = if page == nil, do: :not_found, else: page
+      admint |> Map.put(:current_page, page)
+    else
+      {:not_found} ->
+        admint |> Map.put(:current_page, :not_found)
     end
   end
 end
