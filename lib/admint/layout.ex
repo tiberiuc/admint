@@ -11,7 +11,7 @@ defmodule Admint.Layout do
     {:page_module, Admint.Page},
     {:navigation_module, Admint.Navigation},
     {:header_module, Admint.Header},
-    {:render, Admint.Web.ContainerLive}
+    {:render, Admint.Web.LayoutLive}
   ]
 
   defmacro __using__(_config) do

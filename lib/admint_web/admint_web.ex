@@ -44,8 +44,9 @@ defmodule Admint.Web do
 
   def live_view do
     quote do
-      use Phoenix.LiveView,
-        layout: {Admint.Web.LayoutView, "live.html"}
+      # ,
+      use Phoenix.LiveView
+      # layout: {Admint.Web.LayoutView, "live.html"}
 
       unquote(view_helpers())
     end

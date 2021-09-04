@@ -59,13 +59,14 @@ defmodule Admint.DefinitionTest do
 
       assert %Admint.Definition{
                __stacktrace__: {_, _},
-               config: %{
-                 header_module: Admint.Header,
-                 module: Admint.Layout,
-                 navigation_module: Admint.Navigation,
-                 page_module: MyApp.PageModule,
-                 render: Admint.Web.ContainerLive
-               },
+               config:
+                 %{
+                   # header_module: Admint.Header,
+                   # module: Admint.Layout,
+                   # navigation_module: Admint.Navigation,
+                   # page_module: MyApp.PageModule,
+                   # render: Admint.Web.LayoutLive
+                 },
                header: %Admint.Header{__stacktrace__: {_, _}, config: %{}},
                navigation: %Admint.Navigation{
                  __stacktrace__: {_, _},

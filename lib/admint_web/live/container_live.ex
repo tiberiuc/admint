@@ -8,11 +8,11 @@ defmodule Admint.Web.ContainerLive do
     admint = session["admint"]
     module = admint.module
 
-    navigation = Admint.Definition.get_navigation(module)
+    definition = Admint.Definition.get_definition(module)
 
     admint =
       admint
-      |> Map.put(:navigation, navigation)
+      |> Map.merge(definition)
       |> Map.put(:params, sanitize_params(params))
       |> set_current_page()
 
@@ -32,14 +32,20 @@ defmodule Admint.Web.ContainerLive do
       admint
       |> Map.put(:params, sanitize_params(params))
       |> set_current_page()
-      |> IO.inspect()
 
     {:noreply, assign(socket, admint: admint)}
   end
 
+  @impl true
+  def render(assigns) do
+    ~L"""
+    <%= live_component @socket, assigns.admint.config.render, assigns %>
+    """
+  end
+
   @spec sanitize_params(atom()) :: atom()
   defp sanitize_params(params) do
-    path = params["admint_path"] |> IO.inspect(label: "----")
+    path = params["admint_path"]
     query = params |> Map.delete("admint_path")
 
     %{
@@ -50,17 +56,11 @@ defmodule Admint.Web.ContainerLive do
 
   @spec set_current_page(atom()) :: atom() | :not_found
   defp set_current_page(admint) do
-    path =
-      admint.params.path
-      |> IO.inspect()
+    path = admint.params.path
 
     with {:ok, page_id} <- Utils.str_as_existing_atom(hd(path)) do
-      IO.inspect(page_id)
-
       page =
         Admint.Definition.get_pages(admint.module)
-        |> IO.inspect()
-        # |> Map.get(:pages)
         |> Map.get(page_id)
 
       page = if page == nil, do: :not_found, else: page
