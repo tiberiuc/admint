@@ -6,17 +6,17 @@ defmodule Admint.Definition do
 
   @type t :: %__MODULE__{
           __stacktrace__: Admint.Stacktrace.t(),
-          opts: map,
+          config: map,
           header: Admint.Header.t(),
           navigation: Admint.Navigation.t(),
           categories: %{_: Admint.Category.t()} | %{},
           pages: %{_: Admint.Page.t()} | %{}
         }
 
-  @enforce_keys [:__stacktrace__, :opts, :header, :navigation, :pages, :categories]
-  defstruct [:__stacktrace__, :opts, :header, :navigation, :pages, :categories]
+  @enforce_keys [:__stacktrace__, :config, :header, :navigation, :pages, :categories]
+  defstruct [:__stacktrace__, :config, :header, :navigation, :pages, :categories]
 
-  defmacro __using__(_opts) do
+  defmacro __using__(_config) do
     quote do
       import Admint.Definition
 
@@ -53,14 +53,14 @@ defmodule Admint.Definition do
 
       end
   """
-  defmacro admin(opts \\ [], do: block) do
+  defmacro admin(config \\ [], do: block) do
     stacktrace = get_stacktrace(__CALLER__)
 
     quote do
       Module.put_attribute(__MODULE__, :__admint__, %{
         node: :admin,
         __stacktrace__: unquote(stacktrace),
-        opts: unquote(opts)
+        config: unquote(config)
       })
 
       unquote(block)
@@ -72,14 +72,14 @@ defmodule Admint.Definition do
     end
   end
 
-  defmacro header(opts \\ []) do
+  defmacro header(config \\ []) do
     stacktrace = get_stacktrace(__CALLER__)
 
     quote do
       Module.put_attribute(__MODULE__, :__admint__, %{
         node: :header,
         __stacktrace__: unquote(stacktrace),
-        opts: unquote(opts)
+        config: unquote(config)
       })
     end
   end
@@ -100,14 +100,14 @@ defmodule Admint.Definition do
       end
     end
   """
-  defmacro navigation(opts \\ [], do: block) do
+  defmacro navigation(config \\ [], do: block) do
     stacktrace = get_stacktrace(__CALLER__)
 
     quote do
       Module.put_attribute(__MODULE__, :__admint__, %{
         node: :navigation,
         __stacktrace__: unquote(stacktrace),
-        opts: unquote(opts)
+        config: unquote(config)
       })
 
       unquote(block)
@@ -119,22 +119,22 @@ defmodule Admint.Definition do
     end
   end
 
-  defmacro page(id, opts \\ [])
+  defmacro page(id, config \\ [])
 
-  defmacro page(id, opts) when is_atom(id) do
+  defmacro page(id, config) when is_atom(id) do
     stacktrace = get_stacktrace(__CALLER__)
 
     quote do
       Module.put_attribute(__MODULE__, :__admint__, %{
         node: :page,
         id: unquote(id),
-        opts: unquote(opts),
+        config: unquote(config),
         __stacktrace__: unquote(stacktrace)
       })
     end
   end
 
-  defmacro page(id, _opts) do
+  defmacro page(id, _config) do
     stacktrace = get_stacktrace(__CALLER__)
 
     raise_compiler_error(
@@ -149,19 +149,19 @@ defmodule Admint.Definition do
     )
   end
 
-  defmacro category(title, opts \\ [], do_block)
+  defmacro category(title, config \\ [], do_block)
 
-  defmacro category(title, opts, do: block) when is_binary(title) do
+  defmacro category(title, config, do: block) when is_binary(title) do
     stacktrace = get_stacktrace(__CALLER__)
     # replace with uuid's
     id = ("C" <> UUID.uuid4(:hex)) |> String.to_atom()
-    opts = opts |> Keyword.put(:title, title)
+    config = config |> Keyword.put(:title, title)
 
     quote do
       Module.put_attribute(__MODULE__, :__admint__, %{
         node: :category,
         id: unquote(id),
-        opts: unquote(opts),
+        config: unquote(config),
         __stacktrace__: unquote(stacktrace)
       })
 
@@ -170,13 +170,13 @@ defmodule Admint.Definition do
       Module.put_attribute(__MODULE__, :__admint__, %{
         node: :end_category,
         id: unquote(id),
-        opts: unquote(opts),
+        config: unquote(config),
         __stacktrace__: unquote(stacktrace)
       })
     end
   end
 
-  defmacro category(title, _opts, do: _block) do
+  defmacro category(title, _config, do: _block) do
     stacktrace = get_stacktrace(__CALLER__)
 
     raise_compiler_error(
@@ -335,7 +335,7 @@ defmodule Admint.Definition do
     %Admint.Navigation{
       __stacktrace__: empty_stacktrace(),
       entries: [],
-      opts: %{module: nil}
+      config: %{module: nil}
     }
   end
 
@@ -343,7 +343,7 @@ defmodule Admint.Definition do
   defp empty_header() do
     %Admint.Header{
       __stacktrace__: empty_stacktrace(),
-      opts: %{module: nil}
+      config: %{module: nil}
     }
   end
 
@@ -351,7 +351,7 @@ defmodule Admint.Definition do
   defp create_empty_definition() do
     %__MODULE__{
       __stacktrace__: empty_stacktrace(),
-      opts: %{module: nil},
+      config: %{module: nil},
       header: empty_header(),
       navigation: empty_navigation(),
       categories: %{},
@@ -375,22 +375,22 @@ defmodule Admint.Definition do
     end)
   end
 
-  @spec run_opts_processing(map, map) :: map
-  defp run_opts_processing(opts, entry) do
-    opts =
-      with :ok <- apply(opts.module, :validate_opts, [opts]),
-           {:ok, opts} <- apply(opts.module, :compile_opts, [opts]) do
-        opts
+  @spec run_config_processing(map, map) :: map
+  defp run_config_processing(config, entry) do
+    config =
+      with :ok <- apply(config.module, :validate_config, [config]),
+           {:ok, config} <- apply(config.module, :compile_config, [config]) do
+        config
       else
         {:error, message} -> raise_compiler_error(message, entry.__stacktrace__)
       end
 
-    opts
+    config
   end
 
   @spec get_default_module(map, atom) :: map
   defp get_default_module(definition, id) do
-    definition.opts[id]
+    definition.config[id]
   end
 
   defp compile_entry(:admin, definition, path, entry, index, acc) do
@@ -419,11 +419,11 @@ defmodule Admint.Definition do
     validate_once(definition, entry, index)
 
     entry = sanitize_entry(entry)
-    opts = Utils.set_default_opts(entry.opts, [{:module, Admint.Layout}])
+    config = Utils.set_default_config(entry.config, [{:module, Admint.Layout}])
 
-    opts = run_opts_processing(opts, entry)
+    config = run_config_processing(config, entry)
 
-    %{acc | __stacktrace__: entry.__stacktrace__, opts: opts}
+    %{acc | __stacktrace__: entry.__stacktrace__, config: config}
   end
 
   defp compile_entry(:end_admin, _definition, _path, _entry, _index, acc), do: acc
@@ -455,14 +455,16 @@ defmodule Admint.Definition do
 
     entry = sanitize_entry(entry)
 
-    opts =
-      Utils.set_default_opts(entry.opts, [{:module, get_default_module(acc, :navigation_module)}])
+    config =
+      Utils.set_default_config(entry.config, [
+        {:module, get_default_module(acc, :navigation_module)}
+      ])
 
-    opts = run_opts_processing(opts, entry)
+    config = run_config_processing(config, entry)
 
     %{
       acc
-      | navigation: %{acc.navigation | __stacktrace__: entry.__stacktrace__, opts: opts}
+      | navigation: %{acc.navigation | __stacktrace__: entry.__stacktrace__, config: config}
     }
   end
 
@@ -490,12 +492,12 @@ defmodule Admint.Definition do
 
     entry = sanitize_entry(entry)
 
-    opts =
-      Utils.set_default_opts(entry.opts, [{:module, get_default_module(acc, :header_module)}])
+    config =
+      Utils.set_default_config(entry.config, [{:module, get_default_module(acc, :header_module)}])
 
-    opts = run_opts_processing(opts, entry)
+    config = run_config_processing(config, entry)
 
-    %{acc | header: %{acc.header | __stacktrace__: entry.__stacktrace__, opts: opts}}
+    %{acc | header: %{acc.header | __stacktrace__: entry.__stacktrace__, config: config}}
   end
 
   defp compile_entry(:category, _definition, path, entry, _index, acc) do
@@ -564,20 +566,20 @@ defmodule Admint.Definition do
 
     entry = sanitize_entry(entry)
 
-    opts =
-      Utils.set_default_opts(entry.opts, [
+    config =
+      Utils.set_default_config(entry.config, [
         {:module, get_default_module(acc, :page_module)},
         {:id, page_id}
       ])
 
-    opts = run_opts_processing(opts, entry)
+    config = run_config_processing(config, entry)
 
     with_pages = %{
       acc
       | pages:
           Map.put(acc.pages, page_id, %Admint.Page{
             __stacktrace__: entry.__stacktrace__,
-            opts: opts
+            config: config
           })
     }
 
@@ -627,17 +629,17 @@ defmodule Admint.Definition do
   end
 
   defp sanitize_entry(entry) do
-    opts = entry.opts |> Keyword.keys()
+    config = entry.config |> Keyword.keys()
 
-    duplicates_opts = Enum.uniq(opts -- Enum.uniq(opts))
+    duplicates_config = Enum.uniq(config -- Enum.uniq(config))
 
-    if duplicates_opts != [] do
+    if duplicates_config != [] do
       raise_compiler_error(
         """
         In #{entry.node} following options are duplicate:
 
             #{
-          duplicates_opts
+          duplicates_config
           |> Enum.map(fn o -> ":#{Atom.to_string(o)}" end)
           |> Enum.intersperse(", ")
         }
@@ -648,13 +650,13 @@ defmodule Admint.Definition do
       )
     end
 
-    opts =
-      entry.opts
+    config =
+      entry.config
       |> Enum.into(%{})
 
     entry
     |> Map.delete(:node)
-    |> Map.put(:opts, opts)
+    |> Map.put(:config, config)
   end
 
   defp raise_compiler_error(message, {file, line}) do

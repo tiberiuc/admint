@@ -7,9 +7,9 @@ defmodule Admint.Category do
           __stacktrace__: Admint.Stacktrace.t(),
           id: String.t(),
           title: String.t(),
-          opts: %{}
+          config: %{}
         }
 
-  @enforce_keys [:__stacktrace__, :id, :title, :opts]
-  defstruct [:__stacktrace__, :id, :title, :opts]
+  @enforce_keys [:__stacktrace__, :id, :title, :config]
+  defstruct [:__stacktrace__, :id, :title, :config]
 end

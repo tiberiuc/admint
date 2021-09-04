@@ -82,41 +82,41 @@ defmodule Admint.Utils do
     |> Enum.join(" ")
   end
 
-  @spec validate_opts(map, [atom()], [atom()]) :: :ok | {:error, String.t()}
-  def validate_opts(opts, mandatory, optional) do
-    opts_keys = Map.keys(opts)
+  @spec validate_config(map, [atom()], [atom()]) :: :ok | {:error, String.t()}
+  def validate_config(config, mandatory, optional) do
+    config_keys = Map.keys(config)
 
-    missing_mandatory = mandatory -- opts_keys
-    unknown_opts = opts_keys -- (mandatory ++ optional)
+    missing_mandatory = mandatory -- config_keys
+    unknown_config = config_keys -- (mandatory ++ optional)
 
     cond do
       missing_mandatory != [] ->
         {:error, "Missing mandatory options #{inspect(missing_mandatory)}"}
 
-      unknown_opts != [] ->
-        {:error, "Unknown options #{inspect(unknown_opts)}"}
+      unknown_config != [] ->
+        {:error, "Unknown options #{inspect(unknown_config)}"}
 
       true ->
         :ok
     end
   end
 
-  @spec set_default_opts(map(), {atom(), term()}) :: map
-  def set_default_opts(opts, {key, default_value}) do
-    {_old, opts} =
-      opts
+  @spec set_default_config(map(), {atom(), term()}) :: map
+  def set_default_config(config, {key, default_value}) do
+    {_old, config} =
+      config
       |> Map.get_and_update(key, fn current_value ->
         {current_value, if(current_value != nil, do: current_value, else: default_value)}
       end)
 
-    opts
+    config
   end
 
-  @spec set_default_opts(map(), [{atom(), term()}]) :: map
-  def set_default_opts(opts, default_values) do
+  @spec set_default_config(map(), [{atom(), term()}]) :: map
+  def set_default_config(config, default_values) do
     default_values
-    |> Enum.reduce(opts, fn default_value, acc ->
-      set_default_opts(acc, default_value)
+    |> Enum.reduce(config, fn default_value, acc ->
+      set_default_config(acc, default_value)
     end)
   end
 

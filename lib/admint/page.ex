@@ -1,17 +1,17 @@
 defmodule Admint.Page do
-  @callback validate_opts(map()) :: :ok | {:error, String.t()}
-  @callback compile_opts(map()) :: {:ok, map()} | {:error, String.t()}
+  @callback validate_config(map()) :: :ok | {:error, String.t()}
+  @callback compile_config(map()) :: {:ok, map()} | {:error, String.t()}
   @callback render(atom(), map(), List.t()) :: any()
 
   @type t :: %__MODULE__{
           __stacktrace__: Admint.Stacktrace.t(),
-          opts: map
+          config: map
         }
 
-  @enforce_keys [:__stacktrace__, :opts]
-  defstruct [:__stacktrace__, :opts]
+  @enforce_keys [:__stacktrace__, :config]
+  defstruct [:__stacktrace__, :config]
 
-  defmacro __using__(_opts) do
+  defmacro __using__(_config) do
     quote do
       @behaviour Admint.Page
     end
@@ -19,37 +19,37 @@ defmodule Admint.Page do
 
   alias Admint.Utils
 
-  @mandatory_opts [:module, :id]
-  @optional_opts [
+  @mandatory_config [:module, :id]
+  @optional_config [
     {:schema, nil},
     {:title, nil},
     {:render, nil}
   ]
 
-  @spec validate_opts(map) :: :ok | {:error, String.t()}
-  def validate_opts(opts) do
-    optionals = @optional_opts |> Enum.map(fn {id, _} -> id end)
-    Utils.validate_opts(opts, @mandatory_opts, optionals)
+  @spec validate_config(map) :: :ok | {:error, String.t()}
+  def validate_config(config) do
+    optionals = @optional_config |> Enum.map(fn {id, _} -> id end)
+    Utils.validate_config(config, @mandatory_config, optionals)
   end
 
-  @spec compile_opts(map) :: {:ok, map} | {:error, String.t()}
-  def compile_opts(opts) do
-    opts =
-      opts
-      |> Utils.set_default_opts(@optional_opts)
-      |> Utils.set_default_opts({:title, Utils.humanize(opts.id)})
+  @spec compile_config(map) :: {:ok, map} | {:error, String.t()}
+  def compile_config(config) do
+    config =
+      config
+      |> Utils.set_default_config(@optional_config)
+      |> Utils.set_default_config({:title, Utils.humanize(config.id)})
 
     cond do
-      opts.schema == nil and opts.render == nil ->
+      config.schema == nil and config.render == nil ->
         {:error, "At least one of :schema or :render must be defined"}
 
       true ->
-        opts = opts |> Utils.set_default_opts({:render, Admint.Page})
-        {:ok, opts}
+        config = config |> Utils.set_default_config({:render, Admint.Page})
+        {:ok, config}
     end
   end
 
-  def render(_page_id, _opts, _path) do
+  def render(_page_id, _config, _path) do
     """
     Hello world
     """

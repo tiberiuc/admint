@@ -14,9 +14,9 @@ defmodule Admint.DefinitionTest do
 
       assert %Admint.Definition{
                __stacktrace__: {_, _},
-               opts: %{},
-               header: %Admint.Header{__stacktrace__: {_, _}, opts: %{}},
-               navigation: %Admint.Navigation{__stacktrace__: {_, _}, entries: [], opts: %{}},
+               config: %{},
+               header: %Admint.Header{__stacktrace__: {_, _}, config: %{}},
+               navigation: %Admint.Navigation{__stacktrace__: {_, _}, entries: [], config: %{}},
                categories: %{},
                pages: %{}
              } = definition
@@ -35,16 +35,16 @@ defmodule Admint.DefinitionTest do
 
       assert %Admint.Definition{
                __stacktrace__: {_, _},
-               opts: %{},
-               header: %Admint.Header{__stacktrace__: {_, _}, opts: %{}},
-               navigation: %Admint.Navigation{__stacktrace__: {_, _}, entries: [], opts: %{}},
+               config: %{},
+               header: %Admint.Header{__stacktrace__: {_, _}, config: %{}},
+               navigation: %Admint.Navigation{__stacktrace__: {_, _}, entries: [], config: %{}},
                categories: %{},
                pages: %{}
              } = definition
     end
 
-    test "Header/admin and navigation with opts" do
-      defmodule TestAHNWithOptsAdmin do
+    test "Header/admin and navigation with config" do
+      defmodule TestAHNWithconfigAdmin do
         use Admint, :definition
 
         admin page_module: MyApp.PageModule do
@@ -55,22 +55,22 @@ defmodule Admint.DefinitionTest do
         end
       end
 
-      definition = TestAHNWithOptsAdmin.__admint_definition__()
+      definition = TestAHNWithconfigAdmin.__admint_definition__()
 
       assert %Admint.Definition{
                __stacktrace__: {_, _},
-               opts: %{
+               config: %{
                  header_module: Admint.Header,
                  module: Admint.Layout,
                  navigation_module: Admint.Navigation,
                  page_module: MyApp.PageModule,
                  render: Admint.Web.ContainerLive
                },
-               header: %Admint.Header{__stacktrace__: {_, _}, opts: %{}},
+               header: %Admint.Header{__stacktrace__: {_, _}, config: %{}},
                navigation: %Admint.Navigation{
                  __stacktrace__: {_, _},
                  entries: [],
-                 opts: %{}
+                 config: %{}
                },
                categories: %{},
                pages: %{}
@@ -94,7 +94,7 @@ defmodule Admint.DefinitionTest do
       assert %{
                navigation: %Admint.Navigation{
                  __stacktrace__: {_, _},
-                 opts: %{},
+                 config: %{},
                  entries: [{:category, _, []}]
                },
                categories: _,
@@ -108,7 +108,7 @@ defmodule Admint.DefinitionTest do
       assert %Admint.Category{
                __stacktrace__: {_, _},
                id: _,
-               opts: %{title: "category1"}
+               config: %{title: "category1"}
              } = category
     end
 
@@ -129,7 +129,7 @@ defmodule Admint.DefinitionTest do
 
       assert [{:category, _, [page: :page1]}] = definition.navigation.entries
 
-      assert pages: %{page1: %Admint.Page{__stacktrace__: {_, _}, opts: %{}}} = definition.pages
+      assert pages: %{page1: %Admint.Page{__stacktrace__: {_, _}, config: %{}}} = definition.pages
     end
 
     test "Page inside navigation" do
@@ -147,7 +147,7 @@ defmodule Admint.DefinitionTest do
 
       assert [page: :page1] = definition.navigation.entries
 
-      assert %{page1: %Admint.Page{__stacktrace__: {_, _}, opts: %{}}} = definition.pages
+      assert %{page1: %Admint.Page{__stacktrace__: {_, _}, config: %{}}} = definition.pages
     end
 
     test "Multiple pages inside navigation" do
@@ -180,19 +180,19 @@ defmodule Admint.DefinitionTest do
       assert %{
                page1: %Admint.Page{
                  __stacktrace__: {_, _},
-                 opts: %{}
+                 config: %{}
                },
                page2: %Admint.Page{
                  __stacktrace__: {_, _},
-                 opts: %{}
+                 config: %{}
                },
                page3: %Admint.Page{
                  __stacktrace__: {_, _},
-                 opts: %{}
+                 config: %{}
                },
                page4: %Admint.Page{
                  __stacktrace__: {_, _},
-                 opts: %{}
+                 config: %{}
                }
              } = definition.pages
 
@@ -202,7 +202,7 @@ defmodule Admint.DefinitionTest do
                render: Admint.Page,
                schema: MyApp.Schema,
                title: "Page1"
-             } = definition.pages.page1.opts
+             } = definition.pages.page1.config
     end
   end
 end
