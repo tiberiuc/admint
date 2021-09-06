@@ -265,8 +265,10 @@ defmodule Admint.Definition do
       |> Enum.member?(:header)
 
     if !found do
-      [end_admin | rest] = definition
-      [end_admin] ++ [%{__stacktrace__: {nil, nil}, node: :header, config: []}] ++ rest
+      [admin | rest] = definition |> Enum.reverse()
+
+      ([admin] ++ [%{__stacktrace__: {nil, nil}, node: :header, config: []}] ++ rest)
+      |> Enum.reverse()
     else
       definition
     end
@@ -279,14 +281,16 @@ defmodule Admint.Definition do
       |> Enum.member?(:navigation)
 
     if !found do
-      [end_admin | rest] = definition
+      [admin | rest] =
+        definition
+        |> Enum.reverse()
 
-      [end_admin] ++
-        [
-          %{__stacktrace__: {nil, nil}, node: :navigation, config: []},
-          %{__stacktrace__: {nil, nil}},
-          node: :end_navigation
-        ] ++ rest
+      ([admin] ++
+         [
+           %{__stacktrace__: {nil, nil}, node: :navigation, config: []},
+           %{__stacktrace__: {nil, nil}, node: :end_navigation}
+         ] ++ rest)
+      |> Enum.reverse()
     else
       definition
     end
@@ -493,7 +497,7 @@ defmodule Admint.Definition do
 
     config =
       Utils.set_default_config(entry.config, [
-        {:module, get_default_module(acc, :navigation_module)}
+        {:module, get_default_module(acc, :navigation)}
       ])
 
     config = run_config_processing(config, entry)
@@ -528,8 +532,7 @@ defmodule Admint.Definition do
 
     entry = sanitize_entry(entry)
 
-    config =
-      Utils.set_default_config(entry.config, [{:module, get_default_module(acc, :header_module)}])
+    config = Utils.set_default_config(entry.config, [{:module, get_default_module(acc, :header)}])
 
     config = run_config_processing(config, entry)
 
@@ -604,7 +607,7 @@ defmodule Admint.Definition do
 
     config =
       Utils.set_default_config(entry.config, [
-        {:module, get_default_module(acc, :page_module)},
+        {:module, get_default_module(acc, :page)},
         {:id, page_id}
       ])
 

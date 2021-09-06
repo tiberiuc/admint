@@ -10,9 +10,9 @@ defmodule Admint.Layout do
   @mandatory_config [:module]
 
   @optional_config [
-    {:page_module, Admint.Page},
-    {:navigation_module, Admint.Navigation},
-    {:header_module, Admint.Header},
+    {:page, Admint.Page},
+    {:navigation, Admint.Navigation},
+    {:header, Admint.Header},
     {:render, Admint.Web.LayoutLive}
   ]
 

@@ -35,6 +35,7 @@ defmodule Admint.Definition.HeaderTest do
                    end
     end
 
+    @tag tibi: true
     test "CompileError when declare after admin was closed" do
       assert_raise CompileError,
                    ~r/Header must be declared only inside admin/,
