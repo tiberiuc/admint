@@ -267,7 +267,7 @@ defmodule Admint.Definition do
     if !found do
       [admin | rest] = definition |> Enum.reverse()
 
-      ([admin] ++ [%{__stacktrace__: {nil, nil}, node: :header, config: []}] ++ rest)
+      ([admin] ++ [%{__stacktrace__: admin.__stacktrace__, node: :header, config: []}] ++ rest)
       |> Enum.reverse()
     else
       definition
@@ -287,8 +287,8 @@ defmodule Admint.Definition do
 
       ([admin] ++
          [
-           %{__stacktrace__: {nil, nil}, node: :navigation, config: []},
-           %{__stacktrace__: {nil, nil}, node: :end_navigation}
+           %{__stacktrace__: admin.__stacktrace__, node: :navigation, config: []},
+           %{__stacktrace__: admin.__stacktrace__, node: :end_navigation}
          ] ++ rest)
       |> Enum.reverse()
     else
