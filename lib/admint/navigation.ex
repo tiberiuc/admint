@@ -7,7 +7,7 @@ end
 defmodule Admint.Navigation do
   @callback validate_config(map()) :: :ok | {:error, String.t()}
   @callback compile_config(map()) :: {:ok, map()} | {:error, String.t()}
-  @callback render(map(), List.t()) :: any()
+  @callback render(map()) :: any()
 
   @type t :: %__MODULE__{
           __stacktrace__: Admint.Stacktrace.t(),
@@ -18,11 +18,14 @@ defmodule Admint.Navigation do
   @enforce_keys [:__stacktrace__, :entries, :config]
   defstruct [:__stacktrace__, :entries, :config]
 
+  use Admint.Web, :live_view
   alias Admint.Utils
 
   @mandatory_config [:module]
 
-  @optional_config []
+  @optional_config [
+    {:render, Admint.Web.NavigationLive}
+  ]
 
   defmacro __using__(_config) do
     quote do
@@ -43,11 +46,13 @@ defmodule Admint.Navigation do
     {:ok, config}
   end
 
-  @spec render(map, List.t()) :: any
-  def render(_config, _path) do
-    # should get config.render and use it for rendering
-    """
-    Hello world
+  @spec render(map()) :: any
+  def render(assigns) do
+    admint = assigns.admint
+    render = admint.navigation.config.render
+
+    ~L"""
+    <%= live_component @socket, render, assigns %>
     """
   end
 end

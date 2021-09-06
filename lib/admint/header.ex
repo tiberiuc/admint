@@ -1,7 +1,7 @@
 defmodule Admint.Header do
   @callback validate_config(map()) :: :ok | {:error, String.t()}
   @callback compile_config(map()) :: {:ok, map()} | {:error, String.t()}
-  @callback render(map(), List.t()) :: any()
+  @callback render(map()) :: any()
 
   @type t :: %__MODULE__{
           __stacktrace__: Admint.Stacktrace.t(),
@@ -11,17 +11,21 @@ defmodule Admint.Header do
   @enforce_keys [:__stacktrace__, :config]
   defstruct [:__stacktrace__, :config]
 
+  use Admint.Web, :live_view
+
+  alias Admint.Utils
+
   defmacro __using__(_config) do
     quote do
       @behaviour Admint.Header
     end
   end
 
-  alias Admint.Utils
-
   @mandatory_config [:module]
 
-  @optional_config []
+  @optional_config [
+    {:render, Admint.Web.HeaderLive}
+  ]
 
   @spec validate_config(map) :: :ok | {:error, String.t()}
   def validate_config(config) do
@@ -36,11 +40,13 @@ defmodule Admint.Header do
     {:ok, config}
   end
 
-  @spec render(map, List.t()) :: any
-  def render(_config, _path) do
-    # should get config.render and use it for rendering
-    """
-    Hello world
+  @spec render(map()) :: any()
+  def render(assigns) do
+    admint = assigns.admint
+    render = admint.header.config.render
+
+    ~L"""
+    <%= live_component @socket, render, assigns %>
     """
   end
 end

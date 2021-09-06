@@ -8,45 +8,17 @@
     phx-value-key="error"><%= live_flash(@flash, :error) %></p>
 
   <nav class="navbar is-white">
-    <div class="pl-3">
-      <div class="navbar-brand">
-        <p class="navbar-item brand-text">
-          ADMINT
-        </p>
+    <!-- Header --> 
+    <%= render_header(assigns) %>
   </nav>
 
     <div class="columns is-fullheight">
       <div class="column is-2 p-5">
-        <aside class="menu is-hidden-mobile">
-
-          <ul class="menu-list">
-          <%= for entry <- @admint.navigation.entries do %>
-            <%= case entry do %>
-              <%  {:page, page_id } ->%>
-                <li>
-                  <%= @admint.pages[page_id].config.title %>
-                </li>
-              <% {:category, category_id,  pages} -> %>
-              <li>
-
-              <p class="menu-label pb-0 pt-2"><%= @admint.categories[category_id].config.title%></p>
-                <ul class="menu-list">
-                  <%= for {:page, page_id} <- pages do %>
-                    <li>
-                      <%= @admint.pages[page_id].config.title %>
-                    </li>
-                  <% end %>
-                </ul>
-              </li>
-            <% end %>
-
-          <% end %>
-          </ul>
-
-
-        </aside>
+        <!-- Navigation -->
+        <%= render_navigation(assigns) %>
       </div>
       <div class="column is-10 pl-4 pr-4">
+        <!-- Page -->
       </div>
     </div>
   </main>

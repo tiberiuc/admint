@@ -1,0 +1,29 @@
+<aside class="menu is-hidden-mobile">
+
+  <ul class="menu-list">
+  <%= for entry <- @admint.navigation.entries do %>
+    <%= case entry do %>
+      <%  {:page, page_id } ->%>
+        <li>
+          <%= @admint.pages[page_id].config.title %>
+        </li>
+      <% {:category, category_id,  pages} -> %>
+      <li>
+
+      <p class="menu-label pb-0 pt-2"><%= @admint.categories[category_id].config.title%></p>
+        <ul class="menu-list">
+          <%= for {:page, page_id} <- pages do %>
+            <li>
+              <%= @admint.pages[page_id].config.title %>
+            </li>
+          <% end %>
+        </ul>
+      </li>
+    <% end %>
+
+  <% end %>
+  </ul>
+
+
+</aside>
+

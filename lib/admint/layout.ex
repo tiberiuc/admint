@@ -1,7 +1,9 @@
 defmodule Admint.Layout do
   @callback validate_config(map()) :: :ok | {:error, String.t()}
   @callback compile_config(map()) :: {:ok, map()} | {:error, String.t()}
-  @callback render(map(), List.t()) :: any()
+  @callback render(map()) :: any()
+
+  use Admint.Web, :live_view
 
   alias Admint.Utils
 
@@ -33,10 +35,13 @@ defmodule Admint.Layout do
     {:ok, config}
   end
 
-  def render(_config, _path) do
-    # should get config.render and use it for rendering
-    """
-    Hello world
+  def render(assigns) do
+    admint = assigns.admint
+    config = admint.config
+    render = config.render
+
+    ~L"""
+    <%= live_component @socket, render, assigns %>
     """
   end
 end

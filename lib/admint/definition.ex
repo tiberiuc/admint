@@ -244,6 +244,8 @@ defmodule Admint.Definition do
   defmacro __before_compile__(env) do
     compiled =
       Module.get_attribute(env.module, :__admint__)
+      |> ensure_header()
+      |> ensure_navigation()
       |> compile_definition()
 
     Module.put_attribute(env.module, :__admint_definition__, compiled)
@@ -253,6 +255,40 @@ defmodule Admint.Definition do
       def __admint_definition__() do
         @__admint_definition__
       end
+    end
+  end
+
+  defp ensure_header(definition) do
+    found =
+      definition
+      |> Enum.map(fn entry -> entry.node end)
+      |> Enum.member?(:header)
+
+    if !found do
+      [end_admin | rest] = definition
+      [end_admin] ++ [%{__stacktrace__: {nil, nil}, node: :header, config: []}] ++ rest
+    else
+      definition
+    end
+  end
+
+  defp ensure_navigation(definition) do
+    found =
+      definition
+      |> Enum.map(fn entry -> entry.node end)
+      |> Enum.member?(:navigation)
+
+    if !found do
+      [end_admin | rest] = definition
+
+      [end_admin] ++
+        [
+          %{__stacktrace__: {nil, nil}, node: :navigation, config: []},
+          %{__stacktrace__: {nil, nil}},
+          node: :end_navigation
+        ] ++ rest
+    else
+      definition
     end
   end
 

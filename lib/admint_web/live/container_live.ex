@@ -38,12 +38,12 @@ defmodule Admint.Web.ContainerLive do
 
   @impl true
   def render(assigns) do
-    ~L"""
-    <%= live_component @socket, assigns.admint.config.render, assigns %>
-    """
+    admint = assigns.admint
+    module = admint.config.module
+    apply(module, :render, [assigns])
   end
 
-  @spec sanitize_params(atom()) :: atom()
+  @spec sanitize_params(map()) :: map()
   defp sanitize_params(params) do
     path = params["admint_path"]
     query = params |> Map.delete("admint_path")
@@ -54,7 +54,7 @@ defmodule Admint.Web.ContainerLive do
     }
   end
 
-  @spec set_current_page(atom()) :: atom() | :not_found
+  @spec set_current_page(map()) :: map() | :not_found
   defp set_current_page(admint) do
     path = admint.params.path
 
