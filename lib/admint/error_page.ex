@@ -17,7 +17,7 @@ defmodule Admint.ErrorPage do
   @mandatory_config [:module]
 
   @optional_config [
-    {:render, Admint.Web.ErorPageLive}
+    {:render, Admint.Web.ErrorPageLive}
   ]
 
   defmacro __using__(_config) do

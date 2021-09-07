@@ -1,4 +1,4 @@
-defmodule Admint.Helpers do
+defmodule Admint.Web.Helpers do
   @spec get_current_page_id(map()) :: atom() | nil
   def get_current_page_id(definition) do
     case definition.current_page do

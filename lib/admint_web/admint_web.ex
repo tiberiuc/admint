@@ -73,7 +73,7 @@ defmodule Admint.Web do
 
       import Admint.Web.Gettext
 
-      import Admint.Helpers
+      import Admint.Web.Helpers
 
       alias unquote(Admint.Utils.router()), as: Routes
     end
