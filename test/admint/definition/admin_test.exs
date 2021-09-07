@@ -2,6 +2,7 @@ defmodule Admint.Definition.AdminTest do
   use ExUnit.Case
 
   describe "admin" do
+    @tag tibi: true
     test "admin is defined in root space" do
       ast =
         quote do

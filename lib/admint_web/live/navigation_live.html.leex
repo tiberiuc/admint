@@ -5,7 +5,7 @@
     <%= case entry do %>
       <%  {:page, page_id } ->%>
         <li>
-          <%= @admint.pages[page_id].config.title %>
+          <%= live_patch @admint.pages[page_id].config.title, to: get_page_route(@admint, page_id), class: [get_current_page_id(@admint) == page_id && "is-active" || ""] %>
         </li>
       <% {:category, category_id,  pages} -> %>
       <li>
@@ -14,7 +14,7 @@
         <ul class="menu-list">
           <%= for {:page, page_id} <- pages do %>
             <li>
-              <%= @admint.pages[page_id].config.title %>
+              <%= live_patch @admint.pages[page_id].config.title, to: get_page_route(@admint, page_id), class: [get_current_page_id(@admint) == page_id && "is-active" || ""] %>
             </li>
           <% end %>
         </ul>

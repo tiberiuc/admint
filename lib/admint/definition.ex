@@ -8,13 +8,14 @@ defmodule Admint.Definition do
           __stacktrace__: Admint.Stacktrace.t(),
           config: map,
           header: Admint.Header.t(),
+          error_page: Admint.ErrorPage.t(),
           navigation: Admint.Navigation.t(),
           categories: %{_: Admint.Category.t()} | %{},
           pages: %{_: Admint.Page.t()} | %{}
         }
 
-  @enforce_keys [:__stacktrace__, :config, :header, :navigation, :pages, :categories]
-  defstruct [:__stacktrace__, :config, :header, :navigation, :pages, :categories]
+  @enforce_keys [:__stacktrace__, :config, :error_page, :header, :navigation, :pages, :categories]
+  defstruct [:__stacktrace__, :config, :error_page, :header, :navigation, :pages, :categories]
 
   defmacro __using__(_config) do
     quote do
@@ -246,6 +247,7 @@ defmodule Admint.Definition do
       Module.get_attribute(env.module, :__admint__)
       |> ensure_header()
       |> ensure_navigation()
+      |> ensure_error_page()
       |> compile_definition()
 
     Module.put_attribute(env.module, :__admint_definition__, compiled)
@@ -268,6 +270,22 @@ defmodule Admint.Definition do
       [admin | rest] = definition |> Enum.reverse()
 
       ([admin] ++ [%{__stacktrace__: admin.__stacktrace__, node: :header, config: []}] ++ rest)
+      |> Enum.reverse()
+    else
+      definition
+    end
+  end
+
+  defp ensure_error_page(definition) do
+    found =
+      definition
+      |> Enum.map(fn entry -> entry.node end)
+      |> Enum.member?(:error_page)
+
+    if !found do
+      [admin | rest] = definition |> Enum.reverse()
+
+      ([admin] ++ [%{__stacktrace__: admin.__stacktrace__, node: :error_page, config: []}] ++ rest)
       |> Enum.reverse()
     else
       definition
@@ -309,7 +327,7 @@ defmodule Admint.Definition do
   defp get_definition_path(definition, index) do
     definition
     |> sanitize_path(index)
-    |> Enum.filter(fn entry -> entry != :page && entry != :header end)
+    |> Enum.filter(fn entry -> !Enum.member?([:page, :header, :error_page], entry) end)
     |> Enum.reduce([], fn entry, acc ->
       cond do
         Atom.to_string(entry) |> String.starts_with?("end_") -> tl(acc)
@@ -387,11 +405,20 @@ defmodule Admint.Definition do
     }
   end
 
+  @spec empty_error_page() :: Admint.ErrorPage.t()
+  defp empty_error_page() do
+    %Admint.ErrorPage{
+      __stacktrace__: empty_stacktrace(),
+      config: %{module: nil}
+    }
+  end
+
   @spec create_empty_definition() :: __MODULE__.t()
   defp create_empty_definition() do
     %__MODULE__{
       __stacktrace__: empty_stacktrace(),
       config: %{module: nil},
+      error_page: empty_error_page(),
       header: empty_header(),
       navigation: empty_navigation(),
       categories: %{},
@@ -520,9 +547,7 @@ defmodule Admint.Definition do
         Example:
 
           admin
-            header do
-              ...
-            end
+            header render: MyAppWeb.HeaderLive
           end
       """,
       entry.__stacktrace__
@@ -537,6 +562,34 @@ defmodule Admint.Definition do
     config = run_config_processing(config, entry)
 
     %{acc | header: %{acc.header | __stacktrace__: entry.__stacktrace__, config: config}}
+  end
+
+  defp compile_entry(:error_page, definition, path, entry, index, acc) do
+    validate_paths(
+      path,
+      [[:admin]],
+      """
+      Error page  must be declared only inside admin
+
+        Example:
+
+          admin
+            error_page render: MyAppWeb.ErrorPageLive
+          end
+      """,
+      entry.__stacktrace__
+    )
+
+    validate_once(definition, entry, index)
+
+    entry = sanitize_entry(entry)
+
+    config =
+      Utils.set_default_config(entry.config, [{:module, get_default_module(acc, :error_page)}])
+
+    config = run_config_processing(config, entry)
+
+    %{acc | error_page: %{acc.error_page | __stacktrace__: entry.__stacktrace__, config: config}}
   end
 
   defp compile_entry(:category, _definition, path, entry, _index, acc) do

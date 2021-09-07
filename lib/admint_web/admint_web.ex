@@ -72,6 +72,9 @@ defmodule Admint.Web do
       import Phoenix.View
 
       import Admint.Web.Gettext
+
+      import Admint.Helpers
+
       alias unquote(Admint.Utils.router()), as: Routes
     end
   end

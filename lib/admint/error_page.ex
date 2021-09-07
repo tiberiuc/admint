@@ -1,25 +1,28 @@
-defmodule Admint.Layout do
+defmodule Admint.ErrorPage do
   @callback validate_config(map()) :: :ok | {:error, String.t()}
   @callback compile_config(map()) :: {:ok, map()} | {:error, String.t()}
-  @callback render(map()) :: any()
+  @callback render(map()) :: term()
+
+  @type t :: %__MODULE__{
+          __stacktrace__: Admint.Stacktrace.t(),
+          config: map
+        }
+
+  @enforce_keys [:__stacktrace__, :config]
+  defstruct [:__stacktrace__, :config]
 
   use Admint.Web, :live_view
-
   alias Admint.Utils
 
   @mandatory_config [:module]
 
   @optional_config [
-    {:page, Admint.Page},
-    {:navigation, Admint.Navigation},
-    {:header, Admint.Header},
-    {:error_page, Admint.ErrorPage},
-    {:render, Admint.Web.LayoutLive}
+    {:render, Admint.Web.ErorPageLive}
   ]
 
   defmacro __using__(_config) do
     quote do
-      @behaviour Admint.Layout
+      @behaviour Admint.ErrorPage
     end
   end
 
@@ -36,10 +39,10 @@ defmodule Admint.Layout do
     {:ok, config}
   end
 
+  @spec render(map()) :: term()
   def render(assigns) do
     admint = assigns.admint
-    config = admint.config
-    render = config.render
+    render = admint.error_page.config.render
 
     ~L"""
     <%= live_component @socket, render, assigns %>

@@ -22,30 +22,30 @@ defmodule Admint.Utils do
     |> Module.concat(Helpers)
   end
 
-  # modules -> list of {module, fun}
-  def try_apply_first(modules, args) do
-    modules
-    |> Enum.reduce_while({:error}, fn {module, function}, _acc ->
-      with {:ok, result} <-
-             try_apply(module, function, args) do
-        {:halt, {:ok, result}}
-      else
-        _ -> {:cont, {:not_found}}
-      end
-    end)
-  end
+  #   # modules -> list of {module, fun}
+  #   def try_apply_first(modules, args) do
+  #     modules
+  #     |> Enum.reduce_while({:error}, fn {module, function}, _acc ->
+  #       with {:ok, result} <-
+  #              try_apply(module, function, args) do
+  #         {:halt, {:ok, result}}
+  #       else
+  #         _ -> {:cont, {:not_found}}
+  #       end
+  #     end)
+  #   end
 
-  def try_apply(module, function, args) do
-    arity = Enum.count(args)
+  #   def try_apply(module, function, args) do
+  #     arity = Enum.count(args)
 
-    cond do
-      function_exported?(module, function, arity) == true ->
-        {:ok, apply(module, function, args)}
+  #     cond do
+  #       function_exported?(module, function, arity) == true ->
+  #         {:ok, apply(module, function, args)}
 
-      true ->
-        {:not_found}
-    end
-  end
+  #       true ->
+  #         {:not_found}
+  #     end
+  #   end
 
   @spec str_as_existing_atom(String.t()) :: {:ok, atom()} | {:not_found}
   def str_as_existing_atom(str) do

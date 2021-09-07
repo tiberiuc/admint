@@ -8,7 +8,9 @@ defmodule Admint do
   """
 
   defmacro admint(route, module, do: block) do
-    base_path =
+    base_path = route
+
+    base_path_id =
       route
       |> String.split("/")
       |> Enum.filter(fn p -> p != "" and !String.starts_with?(p, ":") end)
@@ -21,7 +23,7 @@ defmodule Admint do
 
         pipe_through :admint_pipeline
 
-        live "/*admint_path", ContainerLive, unquote(base_path),
+        live "/*admint_path", ContainerLive, unquote(base_path_id),
           as: :admint,
           session: %{
             "admint" => %{

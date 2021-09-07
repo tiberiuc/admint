@@ -58,7 +58,8 @@ defmodule Admint.Web.ContainerLive do
   defp set_current_page(admint) do
     path = admint.params.path
 
-    with {:ok, page_id} <- Utils.str_as_existing_atom(hd(path)) do
+    with [page | _] <- path,
+         {:ok, page_id} <- Utils.str_as_existing_atom(page) do
       page =
         Admint.Definition.get_pages(admint.module)
         |> Map.get(page_id)
@@ -68,6 +69,9 @@ defmodule Admint.Web.ContainerLive do
     else
       {:not_found} ->
         admint |> Map.put(:current_page, :not_found)
+
+      _ ->
+        admint |> Map.put(:current_page, :empty)
     end
   end
 end
