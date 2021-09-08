@@ -3,7 +3,7 @@ defmodule Admint.Layout do
   @callback compile_config(map()) :: {:ok, map()} | {:error, String.t()}
   @callback render(map()) :: any()
 
-  use Admint.Web, :live_view
+  use Admint.Web, :live_component
 
   alias Admint.Utils
 

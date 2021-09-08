@@ -18,7 +18,7 @@ defmodule Admint.Navigation do
   @enforce_keys [:__stacktrace__, :entries, :config]
   defstruct [:__stacktrace__, :entries, :config]
 
-  use Admint.Web, :live_view
+  use Admint.Web, :live_component
   alias Admint.Utils
 
   @mandatory_config [:module]

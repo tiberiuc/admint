@@ -24,9 +24,8 @@ defmodule Admint.Web.LayoutLive do
         """
 
       _ ->
-        ~L"""
-        <%= @admint.current_page.config.id %>
-        """
+        page = admint.config.page
+        apply(page, :render, [assigns])
     end
   end
 

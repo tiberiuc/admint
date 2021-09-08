@@ -11,7 +11,7 @@ defmodule Admint.Header do
   @enforce_keys [:__stacktrace__, :config]
   defstruct [:__stacktrace__, :config]
 
-  use Admint.Web, :live_view
+  use Admint.Web, :live_component
 
   alias Admint.Utils
 
@@ -40,7 +40,6 @@ defmodule Admint.Header do
     {:ok, config}
   end
 
-  @spec render(map()) :: any()
   def render(assigns) do
     admint = assigns.admint
     render = admint.header.config.render

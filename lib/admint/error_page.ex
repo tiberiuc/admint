@@ -11,7 +11,7 @@ defmodule Admint.ErrorPage do
   @enforce_keys [:__stacktrace__, :config]
   defstruct [:__stacktrace__, :config]
 
-  use Admint.Web, :live_view
+  use Admint.Web, :live_component
   alias Admint.Utils
 
   @mandatory_config [:module]

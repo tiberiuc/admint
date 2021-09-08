@@ -8,7 +8,7 @@ defmodule Admint do
   """
 
   defmacro admint(route, module, do: block) do
-    base_path = route
+    base_path = route |> String.trim_trailing("/")
 
     base_path_id =
       route
