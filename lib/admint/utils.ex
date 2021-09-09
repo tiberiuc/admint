@@ -82,44 +82,6 @@ defmodule Admint.Utils do
     |> Enum.join(" ")
   end
 
-  @spec validate_config(map, [atom()], [atom()]) :: :ok | {:error, String.t()}
-  def validate_config(config, mandatory, optional) do
-    config_keys = Map.keys(config)
-
-    missing_mandatory = mandatory -- config_keys
-    unknown_config = config_keys -- (mandatory ++ optional)
-
-    cond do
-      missing_mandatory != [] ->
-        {:error, "Missing mandatory options #{inspect(missing_mandatory)}"}
-
-      unknown_config != [] ->
-        {:error, "Unknown options #{inspect(unknown_config)}"}
-
-      true ->
-        :ok
-    end
-  end
-
-  @spec set_default_config(map(), {atom(), term()}) :: map
-  def set_default_config(config, {key, default_value}) do
-    {_old, config} =
-      config
-      |> Map.get_and_update(key, fn current_value ->
-        {current_value, if(current_value != nil, do: current_value, else: default_value)}
-      end)
-
-    config
-  end
-
-  @spec set_default_config(map(), [{atom(), term()}]) :: map
-  def set_default_config(config, default_values) do
-    default_values
-    |> Enum.reduce(config, fn default_value, acc ->
-      set_default_config(acc, default_value)
-    end)
-  end
-
   defp env(key, default \\ nil) do
     Application.get_env(:admint, key, default)
   end

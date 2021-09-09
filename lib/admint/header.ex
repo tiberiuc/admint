@@ -13,7 +13,7 @@ defmodule Admint.Header do
 
   use Admint.Web, :live_component
 
-  alias Admint.Utils
+  import Admint.Definition.Helpers
 
   defmacro __using__(_config) do
     quote do
@@ -30,12 +30,12 @@ defmodule Admint.Header do
   @spec validate_config(map) :: :ok | {:error, String.t()}
   def validate_config(config) do
     optionals = @optional_config |> Enum.map(fn {id, _} -> id end)
-    Utils.validate_config(config, @mandatory_config, optionals)
+    validate_config(config, @mandatory_config, optionals)
   end
 
   @spec compile_config(map) :: {:ok, map} | {:error, String.t()}
   def compile_config(config) do
-    config = Utils.set_default_config(config, @optional_config)
+    config = set_default_config(config, @optional_config)
 
     {:ok, config}
   end

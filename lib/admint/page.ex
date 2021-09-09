@@ -18,6 +18,7 @@ defmodule Admint.Page do
   end
 
   use Admint.Web, :live_component
+  import Admint.Definition.Helpers
   alias Admint.Utils
 
   @mandatory_config [:module, :id]
@@ -30,22 +31,22 @@ defmodule Admint.Page do
   @spec validate_config(map) :: :ok | {:error, String.t()}
   def validate_config(config) do
     optionals = @optional_config |> Enum.map(fn {id, _} -> id end)
-    Utils.validate_config(config, @mandatory_config, optionals)
+    validate_config(config, @mandatory_config, optionals)
   end
 
   @spec compile_config(map) :: {:ok, map} | {:error, String.t()}
   def compile_config(config) do
     config =
       config
-      |> Utils.set_default_config(@optional_config)
-      |> Utils.set_default_config({:title, Utils.humanize(config.id)})
+      |> set_default_config(@optional_config)
+      |> set_default_config({:title, Utils.humanize(config.id)})
 
     cond do
       config.schema == nil and config.render == nil ->
         {:error, "At least one of :schema or :render must be defined"}
 
       true ->
-        config = config |> Utils.set_default_config({:render, Admint.Page})
+        config = config |> set_default_config({:render, Admint.Page})
         {:ok, config}
     end
   end

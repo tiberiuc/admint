@@ -12,7 +12,7 @@ defmodule Admint.DefinitionTest do
 
       definition = TestNavigationEmptyAdmin.__admint_definition__()
 
-      assert %Admint.Definition{
+      assert %{
                __stacktrace__: {_, _},
                config: %{},
                header: %Admint.Header{__stacktrace__: {_, _}, config: %{}},
@@ -33,7 +33,7 @@ defmodule Admint.DefinitionTest do
 
       definition = TestHeaderEmptyAdmin.__admint_definition__()
 
-      assert %Admint.Definition{
+      assert %{
                __stacktrace__: {_, _},
                config: %{},
                header: %Admint.Header{__stacktrace__: {_, _}, config: %{}},
@@ -57,7 +57,7 @@ defmodule Admint.DefinitionTest do
 
       definition = TestAHNWithconfigAdmin.__admint_definition__()
 
-      assert %Admint.Definition{
+      assert %{
                __stacktrace__: {_, _},
                config: %{},
                header: %Admint.Header{__stacktrace__: {_, _}, config: %{}},
