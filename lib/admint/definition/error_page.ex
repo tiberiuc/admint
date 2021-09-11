@@ -1,8 +1,9 @@
 defmodule Admint.Definition.ErrorPage do
   import Admint.Definition.Helpers
 
-  @spec ensure_defined(map()) :: map()
-  def ensure_defined(definition) do
+  @doc false
+  @spec __ensure_defined(map()) :: map()
+  def __ensure_defined(definition) do
     found =
       definition
       |> Enum.map(fn entry -> entry.node end)
@@ -18,8 +19,9 @@ defmodule Admint.Definition.ErrorPage do
     end
   end
 
-  @spec empty_definition(map()) :: map()
-  def empty_definition(definition) do
+  @doc false
+  @spec __empty_definition(map()) :: map()
+  def __empty_definition(definition) do
     definition
     |> Map.merge(%{
       error_page: %Admint.ErrorPage{
@@ -29,7 +31,8 @@ defmodule Admint.Definition.ErrorPage do
     })
   end
 
-  def compile_entry(:error_page, definition, path, entry, index, acc) do
+  @doc false
+  def __compile_entry(:error_page, definition, path, entry, index, acc) do
     validate_paths(
       path,
       [[:admin]],

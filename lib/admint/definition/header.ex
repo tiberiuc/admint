@@ -13,8 +13,9 @@ defmodule Admint.Definition.Header do
     end
   end
 
-  @spec ensure_defined(map()) :: map()
-  def ensure_defined(definition) do
+  @doc false
+  @spec __ensure_defined(map()) :: map()
+  def __ensure_defined(definition) do
     found =
       definition
       |> Enum.map(fn entry -> entry.node end)
@@ -30,8 +31,9 @@ defmodule Admint.Definition.Header do
     end
   end
 
-  @spec empty_definition(map()) :: map()
-  def empty_definition(definition) do
+  @doc false
+  @spec __empty_definition(map()) :: map()
+  def __empty_definition(definition) do
     definition
     |> Map.merge(%{
       header: %Admint.Header{
@@ -41,7 +43,8 @@ defmodule Admint.Definition.Header do
     })
   end
 
-  def compile_entry(:header, definition, path, entry, index, acc) do
+  @doc false
+  def __compile_entry(:header, definition, path, entry, index, acc) do
     validate_paths(
       path,
       [[:admin]],

@@ -84,7 +84,7 @@ defmodule Admint.Definition do
     compiled =
       @definitions
       |> Map.values()
-      |> Enum.reduce(compiled, fn defs, acc -> apply(defs, :ensure_defined, [acc]) end)
+      |> Enum.reduce(compiled, fn defs, acc -> apply(defs, :__ensure_defined, [acc]) end)
       |> compile_definition()
 
     Module.put_attribute(env.module, :__admint_definition__, compiled)
@@ -101,7 +101,7 @@ defmodule Admint.Definition do
   defp create_empty_definition() do
     @definitions
     |> Map.values()
-    |> Enum.reduce(%{}, fn defs, acc -> apply(defs, :empty_definition, [acc]) end)
+    |> Enum.reduce(%{}, fn defs, acc -> apply(defs, :__empty_definition, [acc]) end)
   end
 
   @spec compile_definition(list) :: map()
@@ -130,7 +130,7 @@ defmodule Admint.Definition do
         raise_compiler_error("Unexpected #{inspect(entry)}", entry.__stacktrace__)
 
       _ ->
-        apply(node_def, :compile_entry, [node, definition, path, entry, index, acc])
+        apply(node_def, :__compile_entry, [node, definition, path, entry, index, acc])
     end
   end
 end

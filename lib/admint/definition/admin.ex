@@ -47,7 +47,8 @@ defmodule Admint.Definition.Admin do
     end
   end
 
-  def compile_entry(:admin, definition, path, entry, index, acc) do
+  @doc false
+  def __compile_entry(:admin, definition, path, entry, index, acc) do
     validate_paths(
       path,
       [[]],
@@ -80,12 +81,15 @@ defmodule Admint.Definition.Admin do
     %{acc | __stacktrace__: entry.__stacktrace__, config: config}
   end
 
-  def compile_entry(:end_admin, _definition, _path, _entry, _index, acc), do: acc
+  @doc false
+  def __compile_entry(:end_admin, _definition, _path, _entry, _index, acc), do: acc
 
-  @spec ensure_defined(map()) :: map()
-  def ensure_defined(definition), do: definition
+  @doc false
+  @spec __ensure_defined(map()) :: map()
+  def __ensure_defined(definition), do: definition
 
-  @spec empty_definition(map()) :: map()
-  def empty_definition(definition),
+  @doc false
+  @spec __empty_definition(map()) :: map()
+  def __empty_definition(definition),
     do: definition |> Map.merge(%{__stacktrace__: empty_stacktrace(), config: %{module: nil}})
 end

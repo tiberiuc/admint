@@ -45,7 +45,8 @@ defmodule Admint.Definition.Category do
     )
   end
 
-  def compile_entry(:category, _definition, path, entry, _index, acc) do
+  @doc false
+  def __compile_entry(:category, _definition, path, entry, _index, acc) do
     validate_paths(
       path,
       [[:navigation, :admin]],
@@ -80,11 +81,14 @@ defmodule Admint.Definition.Category do
     }
   end
 
-  def compile_entry(:end_category, _definition, _path, _entry, _index, acc), do: acc
+  @doc false
+  def __compile_entry(:end_category, _definition, _path, _entry, _index, acc), do: acc
 
-  @spec ensure_defined(map()) :: map()
-  def ensure_defined(definition), do: definition
+  @doc false
+  @spec __ensure_defined(map()) :: map()
+  def __ensure_defined(definition), do: definition
 
-  @spec empty_definition(map()) :: map()
-  def empty_definition(definition), do: definition |> Map.merge(%{categories: %{}})
+  @doc false
+  @spec __empty_definition(map()) :: map()
+  def __empty_definition(definition), do: definition |> Map.merge(%{categories: %{}})
 end

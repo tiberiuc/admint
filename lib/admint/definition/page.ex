@@ -31,7 +31,8 @@ defmodule Admint.Definition.Page do
     )
   end
 
-  def compile_entry(:page, definition, path, entry, index, acc) do
+  @doc false
+  def __compile_entry(:page, definition, path, entry, index, acc) do
     validate_paths(
       path,
       [[:navigation, :admin], [:category, :navigation, :admin]],
@@ -118,9 +119,11 @@ defmodule Admint.Definition.Page do
     end
   end
 
-  @spec ensure_defined(map()) :: map()
-  def ensure_defined(definition), do: definition
+  @doc false
+  @spec __ensure_defined(map()) :: map()
+  def __ensure_defined(definition), do: definition
 
-  @spec empty_definition(map()) :: map()
-  def empty_definition(definition), do: definition |> Map.merge(%{pages: %{}})
+  @doc false
+  @spec __empty_definition(map()) :: map()
+  def __empty_definition(definition), do: definition |> Map.merge(%{pages: %{}})
 end
