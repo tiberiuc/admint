@@ -84,6 +84,7 @@ defmodule Admint.Definition.Helpers do
 
     entry
     |> Map.delete(:node)
+    |> Map.delete(:is_block)
     |> Map.put(:config, config)
   end
 
@@ -92,7 +93,7 @@ defmodule Admint.Definition.Helpers do
   def sanitize_path(definition, index) do
     definition
     |> Enum.take(index)
-    |> Enum.map(fn {%{node: type}, _} -> type end)
+    |> Enum.map(fn {%{node: type} = entry, _} -> [type, Map.get(entry, :is_block, false)] end)
   end
 
   # return the tree path of element at position index in definition
@@ -100,7 +101,10 @@ defmodule Admint.Definition.Helpers do
   def get_definition_path(definition, index) do
     definition
     |> sanitize_path(index)
-    |> Enum.filter(fn entry -> !Enum.member?([:page, :header, :error_page], entry) end)
+    |> Enum.filter(fn [type, is_block] ->
+      is_block || type |> Atom.to_string() |> String.starts_with?("end_")
+    end)
+    |> Enum.map(fn [type, _is_block] -> type end)
     |> Enum.reduce([], fn entry, acc ->
       cond do
         Atom.to_string(entry) |> String.starts_with?("end_") -> tl(acc)

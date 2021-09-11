@@ -34,8 +34,9 @@ defmodule Admint.Definition.Admin do
     quote do
       Module.put_attribute(__MODULE__, :__admint__, %{
         node: :admin,
-        __stacktrace__: unquote(stacktrace),
-        config: unquote(config)
+        is_block: true,
+        config: unquote(config),
+        __stacktrace__: unquote(stacktrace)
       })
 
       unquote(block)

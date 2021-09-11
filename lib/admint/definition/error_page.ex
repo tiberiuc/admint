@@ -12,7 +12,9 @@ defmodule Admint.Definition.ErrorPage do
     if !found do
       [admin | rest] = definition |> Enum.reverse()
 
-      ([admin] ++ [%{__stacktrace__: admin.__stacktrace__, node: :error_page, config: []}] ++ rest)
+      ([admin] ++
+         [%{__stacktrace__: admin.__stacktrace__, node: :error_page, is_block: false, config: []}] ++
+         rest)
       |> Enum.reverse()
     else
       definition
@@ -25,8 +27,8 @@ defmodule Admint.Definition.ErrorPage do
     definition
     |> Map.merge(%{
       error_page: %Admint.ErrorPage{
-        __stacktrace__: empty_stacktrace(),
-        config: %{module: nil}
+        config: %{module: nil},
+        __stacktrace__: empty_stacktrace()
       }
     })
   end

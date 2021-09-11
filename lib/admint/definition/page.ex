@@ -9,6 +9,7 @@ defmodule Admint.Definition.Page do
     quote do
       Module.put_attribute(__MODULE__, :__admint__, %{
         node: :page,
+        is_block: false,
         id: unquote(id),
         config: unquote(config),
         __stacktrace__: unquote(stacktrace)

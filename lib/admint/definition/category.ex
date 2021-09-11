@@ -21,6 +21,7 @@ defmodule Admint.Definition.Category do
 
       Module.put_attribute(__MODULE__, :__admint__, %{
         node: :end_category,
+        is_block: true,
         id: unquote(id),
         config: unquote(config),
         __stacktrace__: unquote(stacktrace)

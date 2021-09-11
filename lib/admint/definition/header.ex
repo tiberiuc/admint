@@ -7,8 +7,9 @@ defmodule Admint.Definition.Header do
     quote do
       Module.put_attribute(__MODULE__, :__admint__, %{
         node: :header,
-        __stacktrace__: unquote(stacktrace),
-        config: unquote(config)
+        is_block: false,
+        config: unquote(config),
+        __stacktrace__: unquote(stacktrace)
       })
     end
   end
@@ -24,7 +25,9 @@ defmodule Admint.Definition.Header do
     if !found do
       [admin | rest] = definition |> Enum.reverse()
 
-      ([admin] ++ [%{__stacktrace__: admin.__stacktrace__, node: :header, config: []}] ++ rest)
+      ([admin] ++
+         [%{__stacktrace__: admin.__stacktrace__, node: :header, is_block: false, config: []}] ++
+         rest)
       |> Enum.reverse()
     else
       definition

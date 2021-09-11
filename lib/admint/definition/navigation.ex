@@ -23,8 +23,9 @@ defmodule Admint.Definition.Navigation do
     quote do
       Module.put_attribute(__MODULE__, :__admint__, %{
         node: :navigation,
-        __stacktrace__: unquote(stacktrace),
-        config: unquote(config)
+        is_block: true,
+        config: unquote(config),
+        __stacktrace__: unquote(stacktrace)
       })
 
       unquote(block)
@@ -51,7 +52,7 @@ defmodule Admint.Definition.Navigation do
 
       ([admin] ++
          [
-           %{__stacktrace__: admin.__stacktrace__, node: :navigation, config: []},
+           %{__stacktrace__: admin.__stacktrace__, node: :navigation, is_block: true, config: []},
            %{__stacktrace__: admin.__stacktrace__, node: :end_navigation}
          ] ++ rest)
       |> Enum.reverse()
