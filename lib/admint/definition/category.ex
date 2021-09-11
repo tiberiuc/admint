@@ -11,7 +11,8 @@ defmodule Admint.Definition.Category do
 
     quote do
       Module.put_attribute(__MODULE__, :__admint__, %{
-        node: :category,
+        type: :category,
+        do_block: true,
         id: unquote(id),
         config: unquote(config),
         __stacktrace__: unquote(stacktrace)
@@ -20,8 +21,7 @@ defmodule Admint.Definition.Category do
       unquote(block)
 
       Module.put_attribute(__MODULE__, :__admint__, %{
-        node: :end_category,
-        is_block: true,
+        type: :end_category,
         id: unquote(id),
         config: unquote(config),
         __stacktrace__: unquote(stacktrace)

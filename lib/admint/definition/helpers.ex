@@ -14,7 +14,7 @@ defmodule Admint.Definition.Helpers do
     path = definition |> Enum.take(index)
 
     prev_declaration =
-      path |> Enum.find(fn {current_entry, _} -> current_entry.node == entry.node end)
+      path |> Enum.find(fn {current_entry, _} -> current_entry.type == entry.type end)
 
     if prev_declaration != nil do
       {prev_declaration, _} = prev_declaration
@@ -22,9 +22,7 @@ defmodule Admint.Definition.Helpers do
 
       raise_compiler_error(
         """
-        #{Atom.to_string(entry.node) |> String.capitalize()} can be declared only once. Previous declaration was at #{
-          prev_file
-        }:#{prev_line}
+        #{Atom.to_string(entry.type) |> String.capitalize()} can be declared only once. Previous declaration was at #{prev_file}:#{prev_line}
 
         """,
         entry.__stacktrace__
@@ -38,16 +36,16 @@ defmodule Admint.Definition.Helpers do
     found =
       definition
       |> Enum.take(index - 1)
-      |> Enum.find(fn {%{node: node} = current_entry, _} ->
-        if entry.node == node, do: entry.id == current_entry.id, else: false
+      |> Enum.find(fn {%{type: type} = current_entry, _} ->
+        if entry.type == type, do: entry.id == current_entry.id, else: false
       end)
 
     if found do
       {%{__stacktrace__: {file, line}, id: id}, _} = found
-      node = entry.node |> Atom.to_string() |> String.capitalize()
+      type = entry.type |> Atom.to_string() |> String.capitalize()
 
       raise_compiler_error(
-        "#{node} with the same id ':#{id}' was already defined here: #{file} #{line}",
+        "#{type} with the same id ':#{id}' was already defined here: #{file} #{line}",
         entry.__stacktrace__
       )
     end
@@ -64,13 +62,9 @@ defmodule Admint.Definition.Helpers do
     if duplicates_config != [] do
       raise_compiler_error(
         """
-        In #{entry.node} following options are duplicate:
+        In #{entry.type} following options are duplicate:
 
-            #{
-          duplicates_config
-          |> Enum.map(fn o -> ":#{Atom.to_string(o)}" end)
-          |> Enum.intersperse(", ")
-        }
+            #{duplicates_config |> Enum.map(fn o -> ":#{Atom.to_string(o)}" end) |> Enum.intersperse(", ")}
 
         Please define them only once to avoid ambiquity
         """,
@@ -83,8 +77,8 @@ defmodule Admint.Definition.Helpers do
       |> Enum.into(%{})
 
     entry
-    |> Map.delete(:node)
-    |> Map.delete(:is_block)
+    |> Map.delete(:type)
+    |> Map.delete(:do_block)
     |> Map.put(:config, config)
   end
 
@@ -93,7 +87,7 @@ defmodule Admint.Definition.Helpers do
   def sanitize_path(definition, index) do
     definition
     |> Enum.take(index)
-    |> Enum.map(fn {%{node: type} = entry, _} -> [type, Map.get(entry, :is_block, false)] end)
+    |> Enum.map(fn {%{type: type} = entry, _} -> [type, Map.get(entry, :do_block, false)] end)
   end
 
   # return the tree path of element at position index in definition
@@ -101,10 +95,10 @@ defmodule Admint.Definition.Helpers do
   def get_definition_path(definition, index) do
     definition
     |> sanitize_path(index)
-    |> Enum.filter(fn [type, is_block] ->
-      is_block || type |> Atom.to_string() |> String.starts_with?("end_")
+    |> Enum.filter(fn [type, do_block] ->
+      do_block || type |> Atom.to_string() |> String.starts_with?("end_")
     end)
-    |> Enum.map(fn [type, _is_block] -> type end)
+    |> Enum.map(fn [type, _do_block] -> type end)
     |> Enum.reduce([], fn entry, acc ->
       cond do
         Atom.to_string(entry) |> String.starts_with?("end_") -> tl(acc)

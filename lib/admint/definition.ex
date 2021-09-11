@@ -116,21 +116,21 @@ defmodule Admint.Definition do
     definition
     |> Enum.reduce(compiled, fn {entry, index}, acc ->
       path = get_definition_path(definition, index)
-      compile_entry(entry.node, definition, path, entry, index, acc)
+      compile_entry(entry.type, definition, path, entry, index, acc)
     end)
   end
 
-  defp compile_entry(node, definition, path, entry, index, acc) do
-    node_def = node |> Atom.to_string() |> String.trim_leading("end_") |> String.to_atom()
+  defp compile_entry(type, definition, path, entry, index, acc) do
+    type_def = type |> Atom.to_string() |> String.trim_leading("end_") |> String.to_atom()
 
-    node_def = Map.get(@definitions, node_def)
+    type_def = Map.get(@definitions, type_def)
 
-    case node_def do
+    case type_def do
       nil ->
         raise_compiler_error("Unexpected #{inspect(entry)}", entry.__stacktrace__)
 
       _ ->
-        apply(node_def, :__compile_entry, [node, definition, path, entry, index, acc])
+        apply(type_def, :__compile_entry, [type, definition, path, entry, index, acc])
     end
   end
 end

@@ -59,8 +59,34 @@ defmodule Admint.Page do
 
     render = page.config.render |> IO.inspect()
 
-    ~L"""
-    <%= live_component @socket, render, assigns %>
-    """
+    route = get_page_route(admint)
+    case route do
+      :index -> ~L"""
+        Index page
+        """
+      :view -> ~L"""
+        View page
+        """
+      :edit -> ~L"""
+        Edit page
+        """
+      :not_found -> ~L"""
+        Not found
+        """
+    
+    end
+    # ~L"""
+    # <%= live_component @socket, render, assigns %>
+    # """
+  end
+
+  defp get_page_route(admint) do
+    path = admint.params.path
+    case path do
+      [_page_id] -> :index
+      [_page_id, id ] -> :view
+      [_page_id, id, "edit"] -> :edit
+      _ -> :not_found
+    end
   end
 end

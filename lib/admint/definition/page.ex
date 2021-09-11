@@ -8,8 +8,8 @@ defmodule Admint.Definition.Page do
 
     quote do
       Module.put_attribute(__MODULE__, :__admint__, %{
-        node: :page,
-        is_block: false,
+        type: :page,
+        do_block: false,
         id: unquote(id),
         config: unquote(config),
         __stacktrace__: unquote(stacktrace)
@@ -88,7 +88,7 @@ defmodule Admint.Definition.Page do
           definition
           |> Enum.take(index)
           |> Enum.reverse()
-          |> Enum.find(fn {entry, _} -> entry.node == :category end)
+          |> Enum.find(fn {entry, _} -> entry.type == :category end)
 
         navigation = %{
           with_pages.navigation

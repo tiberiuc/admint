@@ -22,8 +22,8 @@ defmodule Admint.Definition.Navigation do
 
     quote do
       Module.put_attribute(__MODULE__, :__admint__, %{
-        node: :navigation,
-        is_block: true,
+        type: :navigation,
+        do_block: true,
         config: unquote(config),
         __stacktrace__: unquote(stacktrace)
       })
@@ -31,7 +31,7 @@ defmodule Admint.Definition.Navigation do
       unquote(block)
 
       Module.put_attribute(__MODULE__, :__admint__, %{
-        node: :end_navigation,
+        type: :end_navigation,
         __stacktrace__: unquote(stacktrace)
       })
     end
@@ -42,7 +42,7 @@ defmodule Admint.Definition.Navigation do
   def __ensure_defined(definition) do
     found =
       definition
-      |> Enum.map(fn entry -> entry.node end)
+      |> Enum.map(fn entry -> entry.type end)
       |> Enum.member?(:navigation)
 
     if !found do
@@ -52,8 +52,8 @@ defmodule Admint.Definition.Navigation do
 
       ([admin] ++
          [
-           %{__stacktrace__: admin.__stacktrace__, node: :navigation, is_block: true, config: []},
-           %{__stacktrace__: admin.__stacktrace__, node: :end_navigation}
+           %{__stacktrace__: admin.__stacktrace__, type: :navigation, do_block: true, config: []},
+           %{__stacktrace__: admin.__stacktrace__, type: :end_navigation}
          ] ++ rest)
       |> Enum.reverse()
     else

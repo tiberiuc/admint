@@ -6,14 +6,14 @@ defmodule Admint.Definition.ErrorPage do
   def __ensure_defined(definition) do
     found =
       definition
-      |> Enum.map(fn entry -> entry.node end)
+      |> Enum.map(fn entry -> entry.type end)
       |> Enum.member?(:error_page)
 
     if !found do
       [admin | rest] = definition |> Enum.reverse()
 
       ([admin] ++
-         [%{__stacktrace__: admin.__stacktrace__, node: :error_page, is_block: false, config: []}] ++
+         [%{__stacktrace__: admin.__stacktrace__, type: :error_page, do_block: false, config: []}] ++
          rest)
       |> Enum.reverse()
     else

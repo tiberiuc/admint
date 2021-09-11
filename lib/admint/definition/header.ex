@@ -6,8 +6,8 @@ defmodule Admint.Definition.Header do
 
     quote do
       Module.put_attribute(__MODULE__, :__admint__, %{
-        node: :header,
-        is_block: false,
+        type: :header,
+        do_block: false,
         config: unquote(config),
         __stacktrace__: unquote(stacktrace)
       })
@@ -19,14 +19,14 @@ defmodule Admint.Definition.Header do
   def __ensure_defined(definition) do
     found =
       definition
-      |> Enum.map(fn entry -> entry.node end)
+      |> Enum.map(fn entry -> entry.type end)
       |> Enum.member?(:header)
 
     if !found do
       [admin | rest] = definition |> Enum.reverse()
 
       ([admin] ++
-         [%{__stacktrace__: admin.__stacktrace__, node: :header, is_block: false, config: []}] ++
+         [%{__stacktrace__: admin.__stacktrace__, type: :header, do_block: false, config: []}] ++
          rest)
       |> Enum.reverse()
     else
