@@ -3,6 +3,15 @@ defmodule Admint.Schema do
     schema.__schema__(:primary_key)
   end
 
+  def get_schema(page) do
+    schema = page.config |> Map.get(:schema, nil)
+
+    case schema do
+      nil -> raise "Schema is undefined"
+      _ -> schema
+    end
+  end
+
   def fields(schema) do
     schema
     |> get_all_fields()
