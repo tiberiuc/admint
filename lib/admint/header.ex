@@ -47,7 +47,7 @@ defmodule Admint.Header do
     render = header.config.render
 
     ~L"""
-    <%= live_component @socket, render, assigns %>
+    <%= live_component @socket, render, %{assigns | id: :admint_header } %>
     """
   end
 end

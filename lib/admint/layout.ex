@@ -44,7 +44,7 @@ defmodule Admint.Layout do
     render = config.render
 
     ~L"""
-    <%= live_component @socket, render, assigns %>
+    <%= live_component @socket, render, assigns |> Map.put(:id, :admint_layout ) %>
     """
   end
 end

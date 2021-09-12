@@ -1,1 +1,3 @@
-Index Page
+Index Page <%= inspect(@page) %>
+<%= live_patch "go here", to: get_page_route(@admint, :posts) %>
+<a phx-click="click" phx-target="<%= @myself %>">Test click</a>

@@ -7,6 +7,10 @@ defmodule Admint.Web.Helpers do
     end
   end
 
+  def get_current_page(admint) do
+    admint.current_page
+  end
+
   @spec get_page_route(map(), atom()) :: String.t()
   def get_page_route(admint, page_id) do
     "#{admint.base_path}/#{Atom.to_string(page_id)}"

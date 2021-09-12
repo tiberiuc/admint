@@ -71,21 +71,21 @@ defmodule Admint.Page do
             render = get_render(module, page_id, :index_page)
 
             ~L"""
-            <%= live_component @socket, render, assigns %>
+            <%= live_component @socket, render, %{assigns | id: :admint_index_page} %>
             """
 
           :view ->
             render = get_render(module, page_id, :view_page)
 
             ~L"""
-            <%= live_component @socket, render, assigns %>
+            <%= live_component @socket, render, %{assigns | id: :admint_view_page} %>
             """
 
           :edit ->
             render = get_render(module, page_id, :edit_page)
 
             ~L"""
-            <%= live_component @socket, render, assigns %>
+            <%= live_component @socket, render, %{assigns | id: :admint_edit_page} %>
             """
 
           :not_found ->
@@ -96,7 +96,7 @@ defmodule Admint.Page do
 
       _ ->
         ~L"""
-        <%= live_component @socket, render, assigns %>
+        <%= live_component @socket, render, %{assigns | id: "admin_page_#{page_id}"} %>
         """
     end
   end

@@ -46,7 +46,7 @@ defmodule Admint.ErrorPage do
     render = error_page.config.render
 
     ~L"""
-    <%= live_component @socket, render, assigns %>
+    <%= live_component @socket, render, %{assigns | id: :admint_error_page } %>
     """
   end
 end
