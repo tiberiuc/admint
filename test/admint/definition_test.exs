@@ -193,8 +193,11 @@ defmodule Admint.DefinitionTest do
       assert %{
                id: :page1,
                module: Admint.Page,
-               render: Admint.Page,
+               render: nil,
                schema: MyApp.Schema,
+               index_page: Admint.Web.Page.IndexLive,
+               view_page: Admint.Web.Page.ViewLive,
+               edit_page: Admint.Web.Page.EditLive,
                title: "Page1"
              } = definition.pages.page1.config
     end
