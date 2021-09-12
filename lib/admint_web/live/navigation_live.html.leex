@@ -1,20 +1,20 @@
 <aside class="menu is-hidden-mobile">
 
   <ul class="menu-list">
-  <%= for entry <- @admint.navigation.entries do %>
+  <%= for entry <- @navigation.entries do %>
     <%= case entry do %>
       <%  {:page, page_id } ->%>
         <li>
-          <%= live_patch @admint.pages[page_id].config.title, to: get_page_route(@admint, page_id), class: [get_current_page_id(@admint) == page_id && "is-active" || ""] %>
+          <%= live_patch @pages[page_id].config.title, to: get_page_route(@admint, page_id), class: [get_current_page_id(@admint) == page_id && "is-active" || ""] %>
         </li>
       <% {:category, category_id,  pages} -> %>
       <li>
 
-      <p class="menu-label pb-0 pt-2"><%= @admint.categories[category_id].config.title%></p>
+      <p class="menu-label pb-0 pt-2"><%= @categories[category_id].config.title%></p>
         <ul class="menu-list">
           <%= for {:page, page_id} <- pages do %>
             <li>
-              <%= live_patch @admint.pages[page_id].config.title, to: get_page_route(@admint, page_id), class: [get_current_page_id(@admint) == page_id && "is-active" || ""] %>
+              <%= live_patch @pages[page_id].config.title, to: get_page_route(@admint, page_id), class: [get_current_page_id(@admint) == page_id && "is-active" || ""] %>
             </li>
           <% end %>
         </ul>

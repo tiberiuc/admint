@@ -46,10 +46,11 @@ defmodule Admint.Navigation do
     {:ok, config}
   end
 
-  @spec render(map()) :: term()
   def render(assigns) do
     admint = assigns.admint
-    render = admint.navigation.config.render
+    module = get_module(admint)
+    navigation = get_navigation(module)
+    render = navigation.config.render
 
     ~L"""
     <%= live_component @socket, render, assigns %>

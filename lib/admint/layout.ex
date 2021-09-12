@@ -38,7 +38,9 @@ defmodule Admint.Layout do
 
   def render(assigns) do
     admint = assigns.admint
-    config = admint.config
+    module = get_module(admint)
+    definition = get_definition(module)
+    config = definition.config
     render = config.render
 
     ~L"""

@@ -2,7 +2,7 @@ defmodule Admint.Web.Helpers do
   @spec get_current_page_id(map()) :: atom() | nil
   def get_current_page_id(definition) do
     case definition.current_page do
-      %{config: %{id: id}} -> id
+      {:page, id} -> id
       _ -> nil
     end
   end

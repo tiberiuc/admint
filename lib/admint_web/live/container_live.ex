@@ -1,18 +1,15 @@
 defmodule Admint.Web.ContainerLive do
   use Admint.Web, :live_view
 
+  import Admint.Definition.Helpers
   alias Admint.Utils
 
   @impl true
   def mount(params, session, socket) do
     admint = session["admint"]
-    module = admint.module
-
-    definition = Admint.Definition.get_definition(module)
 
     admint =
       admint
-      |> Map.merge(definition)
       |> Map.put(:params, sanitize_params(params))
       |> set_current_page()
 
@@ -39,8 +36,10 @@ defmodule Admint.Web.ContainerLive do
   @impl true
   def render(assigns) do
     admint = assigns.admint
-    module = admint.config.module
-    apply(module, :render, [assigns])
+    module = get_module(admint)
+    definition = get_definition(module)
+    layout_module = definition.config.module
+    apply(layout_module, :render, [assigns])
   end
 
   @spec sanitize_params(map()) :: map()
@@ -60,11 +59,13 @@ defmodule Admint.Web.ContainerLive do
 
     with [page | _] <- path,
          {:ok, page_id} <- Utils.str_as_existing_atom(page) do
+      module = get_module(admint)
+
       page =
-        Admint.Definition.get_pages(admint.module)
+        get_pages(module)
         |> Map.get(page_id)
 
-      page = if page == nil, do: :not_found, else: page
+      page = if page == nil, do: :not_found, else: {:page, page_id}
       admint |> Map.put(:current_page, page)
     else
       {:not_found} ->

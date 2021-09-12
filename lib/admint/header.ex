@@ -42,7 +42,9 @@ defmodule Admint.Header do
 
   def render(assigns) do
     admint = assigns.admint
-    render = admint.header.config.render
+    module = get_module(admint)
+    header = get_header(module)
+    render = header.config.render
 
     ~L"""
     <%= live_component @socket, render, assigns %>

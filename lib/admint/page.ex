@@ -53,28 +53,37 @@ defmodule Admint.Page do
 
   def render(assigns) do
     admint = assigns.admint
+    module = get_module(admint)
 
     page_id = get_current_page_id(admint)
-    page = admint.pages[page_id]
+    page = get_page_by_id(module, page_id)
 
-    render = page.config.render |> IO.inspect()
+    # _render = page.config.render
 
     route = get_page_route(admint)
+
     case route do
-      :index -> ~L"""
+      :index ->
+        ~L"""
         Index page
         """
-      :view -> ~L"""
+
+      :view ->
+        ~L"""
         View page
         """
-      :edit -> ~L"""
+
+      :edit ->
+        ~L"""
         Edit page
         """
-      :not_found -> ~L"""
+
+      :not_found ->
+        ~L"""
         Not found
         """
-    
     end
+
     # ~L"""
     # <%= live_component @socket, render, assigns %>
     # """
@@ -82,9 +91,10 @@ defmodule Admint.Page do
 
   defp get_page_route(admint) do
     path = admint.params.path
+
     case path do
       [_page_id] -> :index
-      [_page_id, id ] -> :view
+      [_page_id, id] -> :view
       [_page_id, id, "edit"] -> :edit
       _ -> :not_found
     end

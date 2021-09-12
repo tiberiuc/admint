@@ -1,4 +1,68 @@
 defmodule Admint.Definition.Helpers do
+  @spec get_module(map()) :: Module.t()
+  def get_module(admint) do
+    admint.module
+  end
+
+  @doc """
+  Get the admint definition from a module
+  """
+  @spec get_definition(Module.t()) :: Admin.Definition.t()
+  def get_definition(module) do
+    apply(module, :__admint_definition__, [])
+  end
+
+  @doc """
+  Get the navigation definition from a module
+  """
+  @spec get_navigation(Module.t()) :: Admint.Navigation.t()
+  def get_navigation(module) do
+    definition = get_definition(module)
+
+    definition.navigation
+  end
+
+  @doc """
+  Get the header definition from a module
+  """
+  @spec get_header(Module.t()) :: Admint.Navigation.t()
+  def get_header(module) do
+    definition = get_definition(module)
+
+    definition.header
+  end
+
+  @doc """
+  Get pages definition from a module
+  """
+  @spec get_pages(Module.t()) :: Admint.Navigation.t()
+  def get_pages(module) do
+    definition = get_definition(module)
+
+    definition.pages
+  end
+
+  def get_page_by_id(module, id) do
+    pages = get_pages(module)
+    pages |> Map.get(id)
+  end
+
+  @doc """
+  Get categories definition from a module
+  """
+  @spec get_categories(Module.t()) :: Admint.Navigation.t()
+  def get_categories(module) do
+    definition = get_definition(module)
+
+    definition.categories
+  end
+
+  def get_error_page(module) do
+    definition = get_definition(module)
+
+    definition.error_page
+  end
+
   def get_stacktrace(caller) do
     [{_, _, _, [file: file, line: line]}] = Macro.Env.stacktrace(caller)
     {file, line}

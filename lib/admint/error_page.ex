@@ -39,10 +39,11 @@ defmodule Admint.ErrorPage do
     {:ok, config}
   end
 
-  @spec render(map()) :: term()
   def render(assigns) do
     admint = assigns.admint
-    render = admint.error_page.config.render
+    module = get_module(admint)
+    error_page = get_error_page(module)
+    render = error_page.config.render
 
     ~L"""
     <%= live_component @socket, render, assigns %>

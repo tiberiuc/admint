@@ -14,8 +14,10 @@ defmodule Admint.Definition do
   }
 
   defmacro __using__(_config) do
+    definitions = @definitions
+
     imports =
-      for defs <- Map.values(@definitions) do
+      for defs <- Map.values(definitions) do
         quote do
           import unquote(defs)
         end
@@ -26,56 +28,16 @@ defmodule Admint.Definition do
 
       Module.register_attribute(__MODULE__, :__admint__, accumulate: true)
 
+      Module.put_attribute(
+        __MODULE__,
+        :__admint_imports__,
+        quote do
+          definitions
+        end
+      )
+
       @before_compile unquote(__MODULE__)
     end
-  end
-
-  @doc """
-  Get the admint definition from a module
-  """
-  @spec get_definition(Module.t()) :: Admin.Definition.t()
-  def get_definition(module) do
-    apply(module, :__admint_definition__, [])
-  end
-
-  @doc """
-  Get the navigation definition from a module
-  """
-  @spec get_navigation(Module.t()) :: Admint.Navigation.t()
-  def get_navigation(module) do
-    definition = get_definition(module)
-
-    definition.navigation
-  end
-
-  @doc """
-  Get the header definition from a module
-  """
-  @spec get_header(Module.t()) :: Admint.Navigation.t()
-  def get_header(module) do
-    definition = get_definition(module)
-
-    definition.header
-  end
-
-  @doc """
-  Get pages definition from a module
-  """
-  @spec get_pages(Module.t()) :: Admint.Navigation.t()
-  def get_pages(module) do
-    definition = get_definition(module)
-
-    definition.pages
-  end
-
-  @doc """
-  Get categories definition from a module
-  """
-  @spec get_categories(Module.t()) :: Admint.Navigation.t()
-  def get_categories(module) do
-    definition = get_definition(module)
-
-    definition.categories
   end
 
   defmacro __before_compile__(env) do
@@ -86,8 +48,10 @@ defmodule Admint.Definition do
       |> Map.values()
       |> Enum.reduce(compiled, fn defs, acc -> apply(defs, :__ensure_defined, [acc]) end)
       |> compile_definition()
+      |> Map.put(:imports, Module.get_attribute(env.module, :__admint_imports__))
 
     Module.put_attribute(env.module, :__admint_definition__, compiled)
+    Module.delete_attribute(env.module, :__admint_imports__)
     Module.delete_attribute(env.module, :__admint__)
 
     quote do
