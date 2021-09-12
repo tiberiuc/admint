@@ -25,7 +25,10 @@ defmodule Admint.Page do
   @optional_config [
     {:schema, nil},
     {:title, nil},
-    {:render, nil}
+    {:render, nil},
+    {:index_page, Admint.Web.Page.IndexLive},
+    {:view_page, Admint.Web.Page.ViewLive},
+    {:edit_page, Admint.Web.Page.EditLive}
   ]
 
   @spec validate_config(map) :: :ok | {:error, String.t()}
@@ -46,7 +49,6 @@ defmodule Admint.Page do
         {:error, "At least one of :schema or :render must be defined"}
 
       true ->
-        config = config |> set_default_config({:render, Admint.Page})
         {:ok, config}
     end
   end
@@ -58,35 +60,51 @@ defmodule Admint.Page do
     page_id = get_current_page_id(admint)
     page = get_page_by_id(module, page_id)
 
-    # _render = page.config.render
+    render = page.config.render
 
-    route = get_page_route(admint)
+    case render do
+      nil ->
+        route = get_page_route(admint)
 
-    case route do
-      :index ->
+        case route do
+          :index ->
+            render = get_render(module, page_id, :index_page)
+
+            ~L"""
+            <%= live_component @socket, render, assigns %>
+            """
+
+          :view ->
+            render = get_render(module, page_id, :view_page)
+
+            ~L"""
+            <%= live_component @socket, render, assigns %>
+            """
+
+          :edit ->
+            render = get_render(module, page_id, :edit_page)
+
+            ~L"""
+            <%= live_component @socket, render, assigns %>
+            """
+
+          :not_found ->
+            ~L"""
+            Not found
+            """
+        end
+
+      _ ->
         ~L"""
-        Index page
-        """
-
-      :view ->
-        ~L"""
-        View page
-        """
-
-      :edit ->
-        ~L"""
-        Edit page
-        """
-
-      :not_found ->
-        ~L"""
-        Not found
+        <%= live_component @socket, render, assigns %>
         """
     end
+  end
 
-    # ~L"""
-    # <%= live_component @socket, render, assigns %>
-    # """
+  def get_render(module, page_id, route) do
+    page = get_page_by_id(module, page_id)
+
+    page.config |> Map.get(route)
   end
 
   defp get_page_route(admint) do
@@ -94,8 +112,8 @@ defmodule Admint.Page do
 
     case path do
       [_page_id] -> :index
-      [_page_id, id] -> :view
-      [_page_id, id, "edit"] -> :edit
+      [_page_id, _id] -> :view
+      [_page_id, _id, "edit"] -> :edit
       _ -> :not_found
     end
   end
