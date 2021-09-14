@@ -12,9 +12,9 @@
     </tr>
   </thead>
   <tbody>
-    <%= for {id, row} <- @rows do %>
+    <%= for %{id: id, selected: selected, data: row} <- @rows do %>
       <tr id=<%=id %>>
-          <td><input type="checkbox"/></td>
+        <td><input type="checkbox" phx-value-id="<%= id %>"  phx-click="toggle_select" phx-target="<%= @myself %>" <%= if selected, do: "checked", else: "" %>/></td>
           <%= for {id,_field} <- @fields do %>
            <td><%=Map.get(row, id) %></td>          
           <% end %>

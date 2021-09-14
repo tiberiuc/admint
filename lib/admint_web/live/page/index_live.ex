@@ -10,6 +10,7 @@ defmodule Admint.Web.Page.IndexLive do
 
   @impl true
   def update(assigns, socket) do
+    IO.inspect("-----PAGE UPDATE ---")
     admint = assigns.admint
     module = admint.module
     {:page, page_id} = get_current_page(admint)
@@ -55,8 +56,37 @@ defmodule Admint.Web.Page.IndexLive do
   @impl true
   def handle_event("toggle_select_all", params, socket) do
     value = Map.get(params, "value", false) == "true"
+    assigns = socket.assigns
 
-    {:noreply, update(socket, :select_all, fn _ -> value end)}
+    rows =
+      assigns.rows
+      |> Enum.map(fn row -> %{row | selected: value} end)
+
+    {:noreply,
+     socket
+     |> assign(select_all: value, rows: rows)}
+  end
+
+  @impl true
+  def handle_event("toggle_select", params, socket) do
+    id = params["id"]
+
+    assigns = socket.assigns
+
+    rows =
+      assigns.rows
+      |> Enum.map(fn row ->
+        selected =
+          if to_string(row.id) == id do
+            !row.selected
+          else
+            row.selected
+          end
+
+        %{row | selected: selected}
+      end)
+
+    {:noreply, socket |> assign(rows: rows)}
   end
 
   defp get_all(config) do
@@ -68,7 +98,7 @@ defmodule Admint.Web.Page.IndexLive do
     |> Enum.map(fn row ->
       id = Admint.Schema.get_primary_key_value(schema, row)
 
-      {id, row}
+      %{id: id, selected: false, data: row}
     end)
   end
 

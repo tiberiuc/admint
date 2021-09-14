@@ -89,6 +89,7 @@ defmodule Admint.Page do
             """
 
           :not_found ->
+            # TODO should render error_page
             ~L"""
             Not found
             """
