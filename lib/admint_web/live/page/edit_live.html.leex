@@ -1,1 +1,20 @@
-Edit Page
+<h1 class="title"><%= @title %></h1>
+
+<%= for {field_id,field} <- @fields do %>
+  <div class="field" id=<%=field_id %>>
+    <lale class="label"><%=field.label%></label>
+    <div class="copntrol">
+      <input class="input" value="<%=Map.get(@row, field_id) %>"/>
+    </div>
+  </div>
+<% end %>
+
+<div class="field is-grouped">
+  <div class="control">
+    <button class="button is-link">Submit</button>
+  </div>
+  <div class="control">
+    <button class="button">Cancel</button>
+  </div>
+</div>
+

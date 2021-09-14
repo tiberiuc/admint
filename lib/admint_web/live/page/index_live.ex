@@ -23,7 +23,7 @@ defmodule Admint.Web.Page.IndexLive do
     socket =
       socket
       |> assign(:page_id, page_id)
-      |> assign(:title, page.config.title)
+      |> assign(:title, config.title)
       |> assign(:admint, admint)
       |> assign(:rows, rows)
       |> assign(:fields, fields)
