@@ -86,7 +86,15 @@ defmodule Admint.Web.Page.IndexLive do
         %{row | selected: selected}
       end)
 
-    {:noreply, socket |> assign(rows: rows)}
+    all_selected = is_all_selected(rows)
+
+    {:noreply, socket |> assign(rows: rows, select_all: all_selected)}
+  end
+
+  defp is_all_selected(rows) do
+    rows
+    |> Enum.map(fn %{selected: selected} -> selected end)
+    |> Enum.find(fn sel -> sel == false end) == nil
   end
 
   defp get_all(config) do
