@@ -3,7 +3,7 @@
 <%= for {field_id,field} <- @fields do %>
   <div class="field" id=<%=field_id %>>
     <lale class="label"><%=field.label%></label>
-    <div class="copntrol">
+    <div class="control">
       <input class="input" value="<%=Map.get(@row, field_id) %>"/>
     </div>
   </div>
