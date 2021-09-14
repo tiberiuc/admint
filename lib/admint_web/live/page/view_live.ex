@@ -16,7 +16,7 @@ defmodule Admint.Web.Page.ViewLive do
     page = get_page_by_id(module, page_id)
 
     config = page.config
-    fields = get_fields(config) |> IO.inspect()
+    fields = get_fields(config)
     id = get_current_row_id(admint)
     row = get_by_id(config, id)
 
