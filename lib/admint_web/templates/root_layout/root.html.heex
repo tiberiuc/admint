@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" class="admint">
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <%= csrf_meta_tag() %>
+    <%= live_title_tag assigns[:page_title] || "Admint" , suffix: " · Dashboard" %>
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+      <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700" rel="stylesheet">
+      <link phx-track-static rel="stylesheet" href="/admint/assets/admint.css" />
+      <script defer phx-track-static type="text/javascript" src="/admint/assets/admint.js"></script>
+</head>
+
+<body class="admint">
+  <%= @inner_content %>
+</body>
+
+</html>

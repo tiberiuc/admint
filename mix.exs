@@ -5,7 +5,7 @@ defmodule Admint.MixProject do
     [
       app: :admint,
       version: "0.1.0",
-      elixir: ">= 1.11.3",
+      elixir: "~> 1.12",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
@@ -35,17 +35,18 @@ defmodule Admint.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.5.7"},
-      {:phoenix_ecto, "~> 4.1"},
-      {:ecto_sql, "~> 3.4"},
+      {:phoenix, "~> 1.6.0-rc.0", override: true},
+      {:phoenix_ecto, "~> 4.4"},
+      {:ecto_sql, "~> 3.6"},
       {:postgrex, ">= 0.0.0"},
-      {:phoenix_live_view, "~> 0.15.0"},
-      {:floki, ">= 0.27.0", only: :test},
-      {:phoenix_html, "~> 2.11"},
-      {:gettext, "~> 0.11"},
-      {:jason, "~> 1.0"},
+      {:phoenix_live_view, "~> 0.16.0"},
+      {:floki, ">= 0.30.0", only: :test},
+      {:phoenix_html, "~> 3.0"},
+      {:gettext, "~> 0.18"},
+      {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.0"},
-      {:elixir_uuid, "~> 1.2"}
+      {:elixir_uuid, "~> 1.2"},
+      {:esbuild, "~> 0.2", runtime: Mix.env() == :dev}
     ]
   end
 
@@ -58,6 +59,7 @@ defmodule Admint.MixProject do
   defp aliases do
     [
       setup: ["deps.get", "cmd npm install --prefix assets"],
+      "assets.deploy": ["esbuild default --minify", "phx.digest"],
       test: [
         # "ecto.create --quiet", "ecto.migrate --quiet", 
         "test"

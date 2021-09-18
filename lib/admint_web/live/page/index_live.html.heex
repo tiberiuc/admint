@@ -1,3 +1,4 @@
+<div id="inde_page">
 <h1 class="title"><%= @title %></h1>
 <table class="table is-hoverable">
   <thead>
@@ -13,27 +14,27 @@
   </thead>
   <tbody>
     <%= for %{id: id, selected: selected, data: row} <- @rows do %>
-      <tr id="<%=id %>">
-        <td><input type="checkbox" phx-value-id="<%= id %>"  phx-click="toggle_select" phx-target="<%= @myself %>" <%= if selected, do: "checked", else: "" %>/></td>
+      <tr id={id}>
+        <td><input type="checkbox" phx-value-id={id}  phx-click="toggle_select" phx-target={@myself} checked={selected}/></td>
           <%= for {id,_field} <- @fields do %>
            <td><%=Map.get(row, id) %></td>          
           <% end %>
           <td>
-            <button class="button is-small is-light mb-0" phx-click="view" phx-target="<%= @myself %>" value="<%= id %>">
+            <button class="button is-small is-light mb-0" phx-click="view" phx-target={@myself} value={id}>
                 <span class="icon">
                   <i class="fa fa-eye"></i>
                 </span>
               </button>
           </td>
           <td>
-              <button class="button is-small is-light mb-0" phx-click="edit" phx-target="<%= @myself %>" value="<%= id %>">
+            <button class="button is-small is-light mb-0" phx-click="edit" phx-target={@myself} value={id}>
                 <span class="icon">
                   <i class="fa fa-edit"></i>
                 </span>
               </button>
           </td>
           <td>
-            <button class="button  is-small is-light is-danger mb-0" phx-click="delete" phx-target="<%= @myself %>" value="<%= id %>">
+            <button class="button  is-small is-light is-danger mb-0" phx-click="delete" phx-target={@myself} value={id}>
                 <span class="icon">
                   <i class="fa fa-trash"></i>
                 </span>
@@ -44,3 +45,4 @@
       <% end %>
   </tbody>
 </table>
+</div>
