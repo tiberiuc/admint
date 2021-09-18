@@ -1,20 +1,21 @@
 <h1 class="title"><%= @title %></h1>
-
+<form action="#" phx-submit="save" phx-target=<%= @myself %>">
 <%= for {field_id,field} <- @fields do %>
   <div class="field" id=<%=field_id %>>
-    <lale class="label"><%=field.label%></label>
+    <label class="label"><%=field.label%></label>
     <div class="control">
-      <input class="input" value="<%=Map.get(@row, field_id) %>"/>
+      <input class="input" id="<%= field_id%>" name="<%= field_id %>" value="<%=Map.get(@row, field_id) %>"/>
     </div>
   </div>
 <% end %>
 
 <div class="field is-grouped">
   <div class="control">
-    <button class="button is-link">Submit</button>
+    <button type="submit" class="button is-link">Submit</button>
   </div>
   <div class="control">
-    <button class="button">Cancel</button>
+    <button class="button" phx-target="<%= @myself %>" phx-click="cancel">Cancel</button>
   </div>
 </div>
+</form>
 

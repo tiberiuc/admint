@@ -16,7 +16,7 @@ defmodule Admint.Web.Page.EditLive do
     page = get_page_by_id(module, page_id)
 
     config = page.config
-    fields = get_fields(config)
+    fields = get_fields(config) |> IO.inspect()
     id = get_current_row_id(admint)
     row = get_by_id(config, id)
 
@@ -26,9 +26,25 @@ defmodule Admint.Web.Page.EditLive do
       |> assign(:title, config.title)
       |> assign(:admint, admint)
       |> assign(:row, row)
+      |> assign(:changeset, row |> Ecto.Changeset.change())
       |> assign(:fields, fields)
 
     {:ok, socket}
+  end
+
+  @impl true
+  def handle_event("cancel", _values, socket) do
+    admint = socket.assigns.admint
+    {:page, page_id} = get_current_page(admint)
+    {:noreply, socket |> push_patch(to: get_page_route(admint, page_id))}
+  end
+
+  @impl true
+  def handle_event("save", values, socket) do
+    IO.inspect(values)
+    admint = socket.assigns.admint
+    {:page, page_id} = get_current_page(admint)
+    {:noreply, socket |> push_patch(to: get_page_route(admint, page_id))}
   end
 
   defp get_by_id(config, id) do
