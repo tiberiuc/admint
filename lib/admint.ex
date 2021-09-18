@@ -23,14 +23,15 @@ defmodule Admint do
 
         pipe_through :admint_pipeline
 
-        live "/*admint_path", ContainerLive, unquote(base_path_id),
-          as: :admint,
+        live_session :admin,
           session: %{
             "admint" => %{
               module: unquote(module),
               base_path: unquote(base_path)
             }
-          }
+          } do
+          live "/*admint_path", ContainerLive, unquote(base_path_id), as: :admint
+        end
       end
     end
   end
@@ -51,7 +52,7 @@ defmodule Admint do
         at: "/admint",
         from: :admint,
         gzip: false,
-        only: ~w(css fonts images js)
+        only: ~w(assets)
     end
   end
 

@@ -10,7 +10,6 @@ defmodule Admint.Web.Page.IndexLive do
 
   @impl true
   def update(assigns, socket) do
-    IO.inspect("-----PAGE UPDATE ---")
     admint = assigns.admint
     module = admint.module
     {:page, page_id} = get_current_page(admint)
