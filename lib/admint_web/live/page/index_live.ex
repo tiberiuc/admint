@@ -48,7 +48,22 @@ defmodule Admint.Web.Page.IndexLive do
   end
 
   @impl true
-  def handle_event("delete", _, socket) do
+  def handle_event("delete", values, socket) do
+    id = values["value"]
+    admint = socket.assigns.admint
+    module = admint.module
+    {:page, page_id} = get_current_page(admint)
+    page = get_page_by_id(module, page_id)
+
+    config = page.config
+    schema = config.schema
+    query = Admint.Query.query(schema)
+
+    query |> Admint.Utils.repo().get(id) |> Admint.Utils.repo().delete()
+
+    rows = get_all(config)
+    socket = socket |> assign(rows: rows)
+
     {:noreply, socket}
   end
 
