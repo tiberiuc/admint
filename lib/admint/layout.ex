@@ -41,10 +41,13 @@ defmodule Admint.Layout do
     module = get_module(admint)
     definition = get_definition(module)
     config = definition.config
+
     render = config.render
 
-    ~L"""
-    <%= live_component @socket, render, assigns |> Map.put(:id, :admint_layout ) %>
+    ~H"""
+      <div>
+        <.live_component id="admint_layout" module={render} admint={admint} />
+      </div>
     """
   end
 end

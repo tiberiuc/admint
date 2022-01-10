@@ -1,16 +1,29 @@
 defmodule Admint.MixProject do
   use Mix.Project
 
+  @version "0.1.0"
+
   def project do
     [
+      description: "Admint - an easy admin generator using phoenix liveview",
       app: :admint,
-      version: "0.1.0",
+      version: @version,
       elixir: "~> 1.12",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      package: package(),
+      deps: deps(),
+      docs: docs()
+    ]
+  end
+
+  defp package do
+    [
+      maintainers: [" Tibi Craciun "],
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/tiberiuc/admint"}
     ]
   end
 
@@ -35,18 +48,40 @@ defmodule Admint.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.6.0-rc.0", override: true},
+      {:phoenix, "~> 1.6.2"},
       {:phoenix_ecto, "~> 4.4"},
       {:ecto_sql, "~> 3.6"},
       {:postgrex, ">= 0.0.0"},
-      {:phoenix_live_view, "~> 0.16.0"},
+      {:phoenix_live_view, "~> 0.17.5"},
       {:floki, ">= 0.30.0", only: :test},
       {:phoenix_html, "~> 3.0"},
       {:gettext, "~> 0.18"},
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.0"},
       {:elixir_uuid, "~> 1.2"},
-      {:esbuild, "~> 0.2", runtime: Mix.env() == :dev}
+      {:esbuild, "~> 0.2", runtime: Mix.env() == :dev},
+      {:ex_doc, "~> 0.21", only: :docs, runtime: false}
+    ]
+  end
+
+  defp docs do
+    [
+      main: "Admint",
+      source_ref: "v#{@version}",
+      source_url: "https://github.com/tiberiuc/admint",
+      extra_section: "GUIDES",
+      extras: extras()
+      # nest_modules_by_prefix: [Phoenix.LiveDashboard]
+    ]
+  end
+
+  defp extras do
+    [
+      # "guides/ecto_stats.md",
+      # "guides/metrics.md",
+      # "guides/metrics_history.md",
+      # "guides/os_mon.md",
+      # "guides/request_logger.md"
     ]
   end
 
@@ -58,8 +93,11 @@ defmodule Admint.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      setup: ["deps.get", "cmd npm install --prefix assets"],
+      setup: ["deps.get", "js.deps"],
+      "js.deps": ["cmd npm install --prefix assets"],
       "assets.deploy": ["esbuild default --minify", "phx.digest"],
+      "assets.clean": ["cmd rm -rf priv/static"],
+      "build.hex": ["assets.clean", "js.deps", "assets.deploy", "hex.build"],
       test: [
         # "ecto.create --quiet", "ecto.migrate --quiet", 
         "test"

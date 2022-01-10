@@ -39,7 +39,10 @@ defmodule Admint.Web.ContainerLive do
     module = get_module(admint)
     definition = get_definition(module)
     layout_module = definition.config.module
-    apply(layout_module, :render, [assigns])
+
+    ~H"""
+      <.live_component id="admint_container" module={layout_module}  {assigns} />
+    """
   end
 
   @spec sanitize_params(map()) :: map()

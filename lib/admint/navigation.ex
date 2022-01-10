@@ -52,8 +52,8 @@ defmodule Admint.Navigation do
     navigation = get_navigation(module)
     render = navigation.config.render
 
-    ~L"""
-    <%= live_component @socket, render, %{assigns | id: :admint_navigation} %>
+    ~H"""
+    <.live_component module={render} admint={admint}  id="admint_navigation" />
     """
   end
 end

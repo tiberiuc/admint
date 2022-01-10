@@ -70,34 +70,42 @@ defmodule Admint.Page do
           :index ->
             render = get_render(module, page_id, :index_page)
 
-            ~L"""
-            <%= live_component @socket, render, %{assigns | id: :admint_index_page} %>
+            ~H"""
+            <div>
+              <.live_component module={render} {assigns} | id="admint_index_page" />
+            </div>
             """
 
           :view ->
             render = get_render(module, page_id, :view_page)
 
-            ~L"""
-            <%= live_component @socket, render, %{assigns | id: :admint_view_page} %>
+            ~H"""
+            <div>
+              <.live_component module={render} {assigns} id="admint_view_page" />
+            </div>
             """
 
           :edit ->
             render = get_render(module, page_id, :edit_page)
 
-            ~L"""
-            <%= live_component @socket, render, %{assigns | id: :admint_edit_page} %>
+            ~H"""
+            <div>
+              <.live_component module={render} {assigns}id="admint_edit_page" />
+            </div>
             """
 
           :not_found ->
             # TODO should render error_page
-            ~L"""
+            ~H"""
             Not found
             """
         end
 
       _ ->
-        ~L"""
-        <%= live_component @socket, render, %{assigns | id: "admin_page_#{page_id}"} %>
+        ~H"""
+          <div>
+            <.live_component module={render} {assigns} id={"admin_page_#{page_id}"} />
+          </div>
         """
     end
   end

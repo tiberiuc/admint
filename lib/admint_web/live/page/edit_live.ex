@@ -16,7 +16,7 @@ defmodule Admint.Web.Page.EditLive do
     page = get_page_by_id(module, page_id)
 
     config = page.config
-    fields = get_fields(config) |> IO.inspect()
+    fields = get_fields(config)
     id = get_current_row_id(admint)
     row = get_by_id(config, id)
 
@@ -41,14 +41,26 @@ defmodule Admint.Web.Page.EditLive do
 
   @impl true
   def handle_event("save", values, socket) do
-    IO.inspect(values)
     admint = socket.assigns.admint
     {:page, page_id} = get_current_page(admint)
+    module = admint.module
+    page = get_page_by_id(module, page_id)
+
+    config = page.config
+    schema = get_schema(config)
+
+    apply(schema, :changeset, [socket.assigns.changeset, values])
+    |> Admint.Utils.repo().update()
+
     {:noreply, socket |> push_patch(to: get_page_route(admint, page_id))}
   end
 
+  defp get_schema(config) do
+    config.schema
+  end
+
   defp get_by_id(config, id) do
-    schema = config.schema
+    schema = get_schema(config)
     query = Admint.Query.query(schema)
 
     query
@@ -56,7 +68,7 @@ defmodule Admint.Web.Page.EditLive do
   end
 
   defp get_fields(config) do
-    schema = config.schema
+    schema = get_schema(config)
     Admint.Schema.fields(schema)
   end
 

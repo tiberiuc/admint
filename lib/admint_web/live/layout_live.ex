@@ -27,12 +27,18 @@ defmodule Admint.Web.LayoutLive do
         render_error_page(assigns)
 
       :empty ->
-        ~L"""
+        ~H"""
+          <div></div>
         """
 
       {:page, _} ->
         page = definition.config.page
-        apply(page, :render, [assigns])
+        # apply(page, :render, [assigns])
+        ~H"""
+          <div>
+            <.live_component id="page" module={page} {assigns} />
+          </div>
+        """
 
       _ ->
         render_error_page(assigns)
@@ -45,6 +51,11 @@ defmodule Admint.Web.LayoutLive do
 
     error_page = definition.config.error_page
 
-    apply(error_page, :render, [assigns])
+    # apply(error_page, :render, [assigns])
+    ~H"""
+      <div>
+        <.live_component id="error_page" module={error_page} {assigns} />
+      </div>
+    """
   end
 end

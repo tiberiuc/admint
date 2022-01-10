@@ -15,6 +15,9 @@ defmodule Admint.Utils do
           :dev ->
             nil
 
+          :docs ->
+            nil
+
           _ ->
             raise "The :router config must be specified: config :admint, router: MyAppWeb.Router"
         end
