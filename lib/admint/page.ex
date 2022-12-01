@@ -90,7 +90,7 @@ defmodule Admint.Page do
 
             ~H"""
             <div>
-              <.live_component module={render} {assigns}id="admint_edit_page" />
+              <.live_component module={render} {assigns} id="admint_edit_page" />
             </div>
             """
 

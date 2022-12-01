@@ -75,6 +75,8 @@ defmodule Admint.Web do
 
       import Admint.Web.Helpers
 
+      import Phoenix.Component
+
       alias unquote(Admint.Utils.router()), as: Routes
     end
   end
