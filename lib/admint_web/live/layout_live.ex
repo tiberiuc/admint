@@ -33,10 +33,14 @@ defmodule Admint.Web.LayoutLive do
 
       {:page, _} ->
         page = definition.config.page
-        # apply(page, :render, [assigns])
+
+        assigns =
+          assigns
+          |> assign(:page, page)
+
         ~H"""
           <div>
-            <.live_component id="page" module={page} {assigns} />
+            <.live_component id="page" module={@page} {assigns} />
           </div>
         """
 
@@ -51,10 +55,14 @@ defmodule Admint.Web.LayoutLive do
 
     error_page = definition.config.error_page
 
+    assigns =
+      assigns
+      |> assign(:error_page, error_page)
+
     # apply(error_page, :render, [assigns])
     ~H"""
       <div>
-        <.live_component id="error_page" module={error_page} {assigns} />
+        <.live_component id="error_page" module={@error_page} {assigns} />
       </div>
     """
   end

@@ -46,8 +46,13 @@ defmodule Admint.Header do
     header = get_header(module)
     render = header.config.render
 
+    assigns =
+      assigns
+      |> assign(:admint, admint)
+      |> assign(:render, render)
+
     ~H"""
-    <.live_component module={render} id="admint_header" admint={admint} />
+    <.live_component module={@render} id="admint_header" admint={@admint} />
     """
   end
 end

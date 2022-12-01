@@ -70,27 +70,39 @@ defmodule Admint.Page do
           :index ->
             render = get_render(module, page_id, :index_page)
 
+            assigns =
+              assigns
+              |> assign(:render, render)
+
             ~H"""
             <div>
-              <.live_component module={render} {assigns} | id="admint_index_page" />
+              <.live_component module={@render} {assigns} | id="admint_index_page" />
             </div>
             """
 
           :view ->
             render = get_render(module, page_id, :view_page)
 
+            assigns =
+              assigns
+              |> assign(:render, render)
+
             ~H"""
             <div>
-              <.live_component module={render} {assigns} id="admint_view_page" />
+              <.live_component module={@render} {assigns} id="admint_view_page" />
             </div>
             """
 
           :edit ->
             render = get_render(module, page_id, :edit_page)
 
+            assigns =
+              assigns
+              |> assign(:render, render)
+
             ~H"""
             <div>
-              <.live_component module={render} {assigns} id="admint_edit_page" />
+              <.live_component module={@render} {assigns} id="admint_edit_page" />
             </div>
             """
 
@@ -102,9 +114,14 @@ defmodule Admint.Page do
         end
 
       _ ->
+        assigns =
+          assigns
+          |> assign(:render, render)
+          |> assign(:page_id, page_id)
+
         ~H"""
           <div>
-            <.live_component module={render} {assigns} id={"admin_page_#{page_id}"} />
+            <.live_component module={@render} {assigns} id={"admin_page_#{@page_id}"} />
           </div>
         """
     end

@@ -45,8 +45,12 @@ defmodule Admint.ErrorPage do
     error_page = get_error_page(module)
     render = error_page.config.render
 
+    assigns =
+      assigns
+      |> assign(:render, render)
+
     ~H"""
-    <.live_component module={render} {%{assigns | id: :admint_error_page} } />
+    <.live_component module={@render} {%{assigns | id: :admint_error_page} } />
     """
   end
 end

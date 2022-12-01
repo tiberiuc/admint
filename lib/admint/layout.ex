@@ -44,9 +44,14 @@ defmodule Admint.Layout do
 
     render = config.render
 
+    assigns =
+      assigns
+      |> assign(:admint, admint)
+      |> assign(:render, render)
+
     ~H"""
       <div>
-        <.live_component id="admint_layout" module={render} admint={admint} />
+        <.live_component id="admint_layout" module={@render} admint={@admint} />
       </div>
     """
   end
