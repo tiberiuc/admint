@@ -18,22 +18,26 @@ defmodule Admint.Web.Test do
   @impl true
   def render(assigns) do
     ~H"""
-      <div>
-        <p>aaaaaa</p>
-    <%= for i <- ["a", "b", "c"] do %>
-      <%= case i do %>
-        <% "a" -> %> "is a"
-        <% _ -> %> <%= i %>
+    <div>
+      <p>aaaaaa</p>
+      <%= for i <- ["a", "b", "c"] do %>
+        <%= case i do %>
+          <% "a" -> %>
+            "is a"
+          <% _ -> %>
+            <%= i %>
+        <% end %>
       <% end %>
-    <% end %>
-    <br/>
-    <%= for i <- @entries do %>
-      <%= case i do %>
-        <% "a" -> %> "is a"
-        <% _ -> %> <%= i %>
+      <br />
+      <%= for i <- @entries do %>
+        <%= case i do %>
+          <% "a" -> %>
+            "is a"
+          <% _ -> %>
+            <%= i %>
+        <% end %>
       <% end %>
-    <% end %>
-     </div> 
+    </div>
     """
   end
 end

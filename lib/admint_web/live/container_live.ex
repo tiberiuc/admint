@@ -45,7 +45,7 @@ defmodule Admint.Web.ContainerLive do
       |> assign(:layout_module, layout_module)
 
     ~H"""
-      <.live_component id="admint_container" module={@layout_module}  {assigns} />
+    <.live_component id="admint_container" module={@layout_module} {assigns} />
     """
   end
 

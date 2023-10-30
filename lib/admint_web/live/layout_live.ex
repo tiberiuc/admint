@@ -28,7 +28,7 @@ defmodule Admint.Web.LayoutLive do
 
       :empty ->
         ~H"""
-          <div></div>
+        <div></div>
         """
 
       {:page, _} ->
@@ -39,9 +39,9 @@ defmodule Admint.Web.LayoutLive do
           |> assign(:page, page)
 
         ~H"""
-          <div>
-            <.live_component id="page" module={@page} {assigns} />
-          </div>
+        <div>
+          <.live_component id="page" module={@page} {assigns} />
+        </div>
         """
 
       _ ->
@@ -61,9 +61,9 @@ defmodule Admint.Web.LayoutLive do
 
     # apply(error_page, :render, [assigns])
     ~H"""
-      <div>
-        <.live_component id="error_page" module={@error_page} {assigns} />
-      </div>
+    <div>
+      <.live_component id="error_page" module={@error_page} {assigns} />
+    </div>
     """
   end
 end

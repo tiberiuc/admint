@@ -1,16 +1,13 @@
 <div>
-<h1 class="title"><%= @title %></h1>
-<table class="table is-hoverable">
-  <tbody>
-    <%= for {field_id,field} <- @fields do %>
-      <tr id={field_id}>
-        <td><%=field.label%></td>
-        <td><%=Map.get(@row, field_id) %></td>          
+  <h1 class="title"><%= @title %></h1>
+  <table class="table is-hoverable">
+    <tbody>
+      <tr :for={{field_id, field} <- @fields} id={field_id}>
+        <td><%= field.label %></td>
+        <td><%= Map.get(@row, field_id) %></td>
       </tr>
-    <% end %>
-  </tbody>
-</table>
+    </tbody>
+  </table>
 
-<%= live_patch "Back", to: get_page_route(@admint, @page_id) %>
+  <.link navigate={get_page_route(@admint, @page_id)}>Back</.link>
 </div>
-

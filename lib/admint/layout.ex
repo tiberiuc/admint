@@ -50,9 +50,9 @@ defmodule Admint.Layout do
       |> assign(:render, render)
 
     ~H"""
-      <div>
-        <.live_component id="admint_layout" module={@render} admint={@admint} />
-      </div>
+    <div>
+      <.live_component id="admint_layout" module={@render} admint={@admint} />
+    </div>
     """
   end
 end

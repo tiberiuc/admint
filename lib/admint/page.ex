@@ -120,9 +120,9 @@ defmodule Admint.Page do
           |> assign(:page_id, page_id)
 
         ~H"""
-          <div>
-            <.live_component module={@render} {assigns} id={"admin_page_#{@page_id}"} />
-          </div>
+        <div>
+          <.live_component module={@render} {assigns} id={"admin_page_#{@page_id}"} />
+        </div>
         """
     end
   end

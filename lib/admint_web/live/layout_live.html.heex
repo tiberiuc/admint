@@ -1,26 +1,25 @@
 <main role="main">
-  <p class="alert alert-info" role="alert"
-    phx-click="lv:clear-flash"
-    phx-value-key="info"><%= live_flash(@flash, :info) %></p>
+  <p class="alert alert-info" role="alert" phx-click="lv:clear-flash" phx-value-key="info">
+    <%= live_flash(@flash, :info) %>
+  </p>
 
-  <p class="alert alert-danger" role="alert"
-    phx-click="lv:clear-flash"
-    phx-value-key="error"><%= live_flash(@flash, :error) %></p>
+  <p class="alert alert-danger" role="alert" phx-click="lv:clear-flash" phx-value-key="error">
+    <%= live_flash(@flash, :error) %>
+  </p>
 
   <nav class="navbar is-white">
-    <!-- Header --> 
+    <!-- Header -->
     <%= render_header(assigns) %>
   </nav>
 
-    <div class="columns is-fullheight">
-      <div class="column is-2 p-5">
-        <!-- Navigation -->
-        <%= render_navigation(assigns) %>
-      </div>
-      <div class="column is-10 pl-4 pr-4">
-        <!-- Page -->
-        <%= render_page(assigns) %>
-      </div>
+  <div class="columns is-fullheight">
+    <div class="column is-2 p-5">
+      <!-- Navigation -->
+      <%= render_navigation(assigns) %>
     </div>
-  </main>
-
+    <div class="column is-10 pl-4 pr-4">
+      <!-- Page -->
+      <%= render_page(assigns) %>
+    </div>
+  </div>
+</main>

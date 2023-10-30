@@ -8,9 +8,9 @@ defmodule Admint.MixProject do
       description: "Admint - an easy admin generator using phoenix liveview",
       app: :admint,
       version: @version,
-      elixir: "~> 1.12",
+      elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: [:phoenix] ++ Mix.compilers(),
+      # compilers: [] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       package: package(),
@@ -48,18 +48,20 @@ defmodule Admint.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.6.2"},
+      # {:phoenix_view, "~> 2.0"},
+      {:phoenix, "~> 1.7"},
       {:phoenix_ecto, "~> 4.4"},
       {:ecto_sql, "~> 3.6"},
       {:postgrex, ">= 0.0.0"},
-      {:phoenix_live_view, "~> 0.18.3"},
+      {:phoenix_live_view, "~> 0.20"},
       {:floki, ">= 0.30.0", only: :test},
-      {:phoenix_html, "~> 3.0"},
+      {:phoenix_html, "~> 3.3"},
       {:gettext, "~> 0.18"},
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.0"},
       {:elixir_uuid, "~> 1.2"},
       {:esbuild, "~> 0.2", runtime: Mix.env() == :dev},
+      {:tailwind, "~> 0.2.0", runtime: Mix.env() == :dev},
       {:ex_doc, "~> 0.21", only: :docs, runtime: false}
     ]
   end

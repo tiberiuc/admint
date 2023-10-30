@@ -1,29 +1,27 @@
 <aside class="menu is-hidden-mobile">
-
   <ul class="menu-list">
-  <%= for entry <- @navigation.entries do %>
-    <%= case entry do %>
-      <%  {:page, page_id } ->%>
-        <li>
-          <%= live_patch @pages[page_id].config.title, to: get_page_route(@admint, page_id), class: [get_current_page_id(@admint) == page_id && "is-active" || ""] %>
-        </li>
-      <% {:category, category_id,  pages} -> %>
-      <li>
-
-      <p class="menu-label pb-0 pt-2"><%= @categories[category_id].config.title%></p>
-        <ul class="menu-list">
-          <%= for {:page, page_id} <- pages do %>
-            <li>
-              <%= live_patch @pages[page_id].config.title, to: get_page_route(@admint, page_id), class: [get_current_page_id(@admint) == page_id && "is-active" || ""] %>
+    <li :for={entry <- @navigation.entries}>
+      <%= case entry do %>
+        <% {:page, page_id } -> %>
+          <.link
+            patch={get_page_route(@admint, page_id)}
+            class={[(get_current_page_id(@admint) == page_id && "is-active") || ""]}
+          >
+            <%= @pages[page_id].config.title %>
+          </.link>
+        <% {:category, category_id,  pages} -> %>
+          <p class="menu-label pb-0 pt-2"><%= @categories[category_id].config.title %></p>
+          <ul class="menu-list">
+            <li :for={{:page, page_id} <- pages}>
+              <.link
+                patch={get_page_route(@admint, page_id)}
+                class={[(get_current_page_id(@admint) == page_id && "is-active") || ""]}
+              >
+                <%= @pages[page_id].config.title %>
+              </.link>
             </li>
-          <% end %>
-        </ul>
-      </li>
-    <% end %>
-
-  <% end %>
+          </ul>
+      <% end %>
+    </li>
   </ul>
-
-
 </aside>
-

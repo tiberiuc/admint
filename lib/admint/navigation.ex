@@ -58,7 +58,7 @@ defmodule Admint.Navigation do
       |> assign(:render, render)
 
     ~H"""
-    <.live_component module={@render} admint={@admint}  id="admint_navigation" />
+    <.live_component module={@render} admint={@admint} id="admint_navigation" />
     """
   end
 end

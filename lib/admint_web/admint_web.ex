@@ -5,8 +5,8 @@ defmodule Admint.Web do
 
   This can be used in your application as:
 
-      use AdmintWeb, :controller
-      use AdmintWeb, :view
+      use Admint.Web, :controller
+      use Admint.Web, :html
 
   The definitions below will be executed for every view,
   controller, etc, so keep them short and clean, focused
@@ -27,28 +27,27 @@ defmodule Admint.Web do
   #   end
   # end
 
-  def view do
+  def static_paths, do: ~w(assets fonts images favicon.ico robots.txt)
+
+  def html do
     quote do
-      use Phoenix.View,
-        root: "lib/admint_web/templates",
-        namespace: Admint.Web
+      use Phoenix.Component
 
       # Import convenience functions from controllers
       import Phoenix.Controller,
-        only: [get_flash: 1, get_flash: 2, view_module: 1, view_template: 1]
+        only: [get_csrf_token: 0, view_module: 1, view_template: 1]
 
       # Include shared imports and aliases for views
-      unquote(view_helpers())
+      unquote(html_helpers())
     end
   end
 
   def live_view do
     quote do
-      # ,
-      use Phoenix.LiveView
-      # layout: {Admint.Web.LayoutView, "live.html"}
+      use Phoenix.LiveView,
+        layout: {Admint.Web.Layouts, :admint}
 
-      unquote(view_helpers())
+      unquote(html_helpers())
     end
   end
 
@@ -56,28 +55,35 @@ defmodule Admint.Web do
     quote do
       use Phoenix.LiveComponent
 
-      unquote(view_helpers())
+      unquote(html_helpers())
     end
   end
 
-  defp view_helpers do
+  defp html_helpers do
     quote do
-      # Use all HTML functionality (forms, tags, etc)
-      use Phoenix.HTML
-
-      # Import LiveView helpers (live_render, live_component, live_patch, etc)
-      import Phoenix.LiveView.Helpers
-
-      # Import basic rendering functionality (render, render_layout, etc)
-      import Phoenix.View
-
+      # HTML escaping functionality
+      import Phoenix.HTML
+      # Core UI components and translation
+      import Admint.Web.CoreComponents
       import Admint.Web.Gettext
+
+      # Shortcut for generating JS commands
+      alias Phoenix.LiveView.JS
 
       import Admint.Web.Helpers
 
-      import Phoenix.Component
+      unquote(verified_routes())
 
       alias unquote(Admint.Utils.router()), as: Routes
+    end
+  end
+
+  def verified_routes do
+    quote do
+      use Phoenix.VerifiedRoutes,
+        endpoint: Admint.Web.Endpoint,
+        router: Admint.Web.Router,
+        statics: Admint.Web.static_paths()
     end
   end
 
