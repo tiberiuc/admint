@@ -463,6 +463,11 @@ defmodule Admint.Web.CoreComponents do
 
   slot :col, required: true do
     attr :label, :string
+    attr :id, :any
+  end
+
+  slot :header, doc: "define a custom header dor a column" do
+    attr :id, :any, required: true
   end
 
   slot :action, doc: "the slot for showing user actions in the last table column"
@@ -474,11 +479,19 @@ defmodule Admint.Web.CoreComponents do
       end
 
     ~H"""
-    <div class="overflow-y-auto px-4 sm:overflow-visible sm:px-0">
-      <table class="w-[40rem] mt-11 sm:w-full">
+    <div class="flex-1 flex">
+      <table class="flex-1 mx-10">
         <thead class="text-sm text-left leading-6 text-zinc-500">
-          <tr>
-            <th :for={col <- @col} class="p-0 pb-4 pr-6 font-normal"><%= col[:label] %></th>
+          <tr class="bg-gray-200 h-12 text-lg">
+            <th :for={col <- @col} class="mx-3">
+              <%= header = Enum.find(@header, fn header -> header[:id] == col[:id] end)
+
+              if header do
+                render_slot(header)
+              else
+                col[:label]
+              end %>
+            </th>
             <th :if={@action != []} class="relative p-0 pb-4">
               <span class="sr-only"><%= gettext("Actions") %></span>
             </th>
@@ -489,21 +502,25 @@ defmodule Admint.Web.CoreComponents do
           phx-update={match?(%Phoenix.LiveView.LiveStream{}, @rows) && "stream"}
           class="relative divide-y divide-zinc-100 border-t border-zinc-200 text-sm leading-6 text-zinc-700"
         >
-          <tr :for={row <- @rows} id={@row_id && @row_id.(row)} class="group hover:bg-zinc-50">
+          <tr
+            :for={row <- @rows}
+            id={@row_id && @row_id.(row)}
+            class="hover:bg-gray-200 even:bg-gray-100"
+          >
             <td
               :for={{col, i} <- Enum.with_index(@col)}
               phx-click={@row_click && @row_click.(row)}
               class={["relative p-0", @row_click && "hover:cursor-pointer"]}
             >
-              <div class="block py-4 pr-6">
-                <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 sm:rounded-l-xl" />
+              <div class="block py-1 pr-6">
+                <span class="absolute -inset-y-px right-0 -left-3 group-hover:bg-zinc-50 sm:rounded-l-xl" />
                 <span class={["relative", i == 0 && "font-semibold text-zinc-900"]}>
                   <%= render_slot(col, @row_item.(row)) %>
                 </span>
               </div>
             </td>
-            <td :if={@action != []} class="relative w-14 p-0">
-              <div class="relative whitespace-nowrap py-4 text-right text-sm font-medium">
+            <td :if={@action != []} class="relative p-0 pr-5">
+              <div class="relative whitespace-nowrap py-1 text-right text-sm font-medium">
                 <span class="absolute -inset-y-px -right-4 left-0 group-hover:bg-zinc-50 sm:rounded-r-xl" />
                 <span
                   :for={action <- @action}

@@ -1,7 +1,7 @@
 <div class="flex flex-col gap-10 pl-10">
   <h1 class="font-bold text-4xl pt-10"><%= @title %></h1>
   <form action="#" phx-submit="save" phx-target={@myself}>
-    <div :for={{field_id, field} <- @fields} class="mt-5" id={field_id}>
+    <div :for={{field_id, field} <- @fields} class="mt-5" id={"field_#{field_id}"}>
       <label class="font-semibold"><%= field.label %></label>
       <div class="max-w-xl">
         <.input class="input" id={field_id} name={field_id} value={Map.get(@row, field_id)} />
