@@ -60,7 +60,7 @@ defmodule Admint.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.0"},
       {:elixir_uuid, "~> 1.2"},
-      {:esbuild, "~> 0.2", runtime: Mix.env() == :dev},
+      {:esbuild, "~> 0.7", runtime: Mix.env() == :dev},
       {:tailwind, "~> 0.2.0", runtime: Mix.env() == :dev},
       {:ex_doc, "~> 0.21", only: :docs, runtime: false}
     ]
@@ -95,15 +95,16 @@ defmodule Admint.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      setup: ["deps.get", "js.deps"],
-      "js.deps": ["cmd npm install --prefix assets"],
-      "assets.deploy": ["esbuild default --minify", "phx.digest"],
-      "assets.clean": ["cmd rm -rf priv/static"],
-      "build.hex": ["assets.clean", "js.deps", "assets.deploy", "hex.build"],
+      setup: ["deps.get", "assets.setup", "assets.build"],
+      "build.hex": ["assets.clean", "assets.setup", "assets.deploy", "hex.build"],
       test: [
         # "ecto.create --quiet", "ecto.migrate --quiet", 
         "test"
-      ]
+      ],
+      "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
+      "assets.build": ["tailwind default", "esbuild default"],
+      "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"],
+      "assets.clean": ["cmd rm -rf priv/static"]
     ]
   end
 end

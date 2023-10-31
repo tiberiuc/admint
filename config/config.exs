@@ -8,9 +8,10 @@
 import Config
 
 config :esbuild,
-  version: "0.12.18",
+  version: "0.17.11",
   default: [
-    args: ~w(js/admint.js --bundle --target=es2016 --outdir=../priv/static/assets),
+    args:
+      ~w(js/admint.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
     cd: Path.expand("../assets", __DIR__),
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]
@@ -21,8 +22,8 @@ config :tailwind,
   default: [
     args: ~w(
       --config=tailwind.config.js
-      --input=css/app.css
-      --output=../priv/static/assets/app.css
+      --input=css/admint.css
+      --output=../priv/static/assets/admint.css
     ),
     cd: Path.expand("../assets", __DIR__)
   ]
