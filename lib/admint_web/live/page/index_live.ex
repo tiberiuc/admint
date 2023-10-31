@@ -3,6 +3,8 @@ defmodule Admint.Web.Page.IndexLive do
   import Admint.Definition.Helpers
   import Admint.Web.Page.Helpers
 
+  @per_page 10
+
   @impl true
   def mount(socket) do
     {:ok, socket}
@@ -17,11 +19,14 @@ defmodule Admint.Web.Page.IndexLive do
 
     query = admint.params.query
 
-    sort = {query["sort_by"] |> to_atom(), query["sort"] |> to_atom()}
+    sort = %{sort_by: query["sort_by"] |> to_atom(), sort: query["sort"] |> to_atom()}
+    pagination = %{page: query["page"] || 1, per_page: query["per_page"] || @per_page}
 
     config = page.config
     fields = get_fields(config)
-    rows = get_all(config)
+
+    query_params = Map.merge(sort, pagination)
+    rows = get_all(config, query_params)
 
     socket =
       socket
@@ -32,6 +37,7 @@ defmodule Admint.Web.Page.IndexLive do
       |> assign(:fields, fields)
       |> assign(:select_all, false)
       |> assign(sort: sort)
+      |> assign(pagination: pagination)
 
     {:ok, socket}
   end
@@ -112,28 +118,36 @@ defmodule Admint.Web.Page.IndexLive do
 
   @impl true
   def handle_event("change_sort", params, socket) do
-    {id, order} = socket.assigns.sort
+    assigns = socket.assigns
+    %{sort_by: sort_by, sort: sort} = assigns.sort
     field_id = params["id"] |> to_atom()
 
     sort =
       cond do
-        field_id != id ->
-          {field_id, :asc}
+        field_id != sort_by ->
+          %{sort_by: field_id, sort: :asc}
 
-        order == :asc ->
-          {field_id, :desc}
+        sort == :asc ->
+          %{sort_by: field_id, sort: :desc}
 
         true ->
-          {nil, nil}
+          %{sort_by: nil, sort: nil}
       end
 
-    {id, order} = sort
+    path = update_query(assigns.admint, sort)
 
-    path = update_query(socket.assigns.admint, %{sort_by: id, sort: order})
+    query_params = Map.merge(sort, assigns.pagination)
+    admint = assigns.admint
+    module = admint.module
+    {:page, page_id} = get_current_page(admint)
+    page = get_page_by_id(module, page_id)
+    config = page.config
+    rows = get_all(config, query_params)
 
     socket =
       socket
       |> assign(sort: sort)
+      |> assign(rows: rows)
       |> push_patch(to: path)
 
     {:noreply, socket}
@@ -145,9 +159,9 @@ defmodule Admint.Web.Page.IndexLive do
     |> Enum.find(fn sel -> sel == false end) == nil
   end
 
-  defp get_all(config) do
+  defp get_all(config, opts \\ %{}) do
     schema = config.schema
-    query = Admint.Query.query(schema)
+    query = Admint.Query.query(schema, opts)
 
     query
     |> Admint.Utils.repo().all()
@@ -175,6 +189,7 @@ defmodule Admint.Web.Page.IndexLive do
 
   defp update_query(admint, query) do
     path = ([admint.base_path] ++ admint.params.path) |> Enum.join("/")
+    query = Enum.map(query, fn {key, value} -> {to_string(key), value} end) |> Enum.into(%{})
     query = Map.merge(admint.params.query, query)
 
     query = "?" <> (Enum.map(query, fn {key, value} -> "#{key}=#{value}" end) |> Enum.join("&"))
