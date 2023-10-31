@@ -1,21 +1,25 @@
-<aside class="menu is-hidden-mobile">
-  <ul class="menu-list">
-    <li :for={entry <- @navigation.entries}>
+<aside class="border-r-gray-200 border-r-2 p-5 h-full bg-gray-100">
+  <ul class="">
+    <li :for={entry <- @navigation.entries} class="py-1">
       <%= case entry do %>
         <% {:page, page_id } -> %>
           <.link
             patch={get_page_route(@admint, page_id)}
-            class={[(get_current_page_id(@admint) == page_id && "is-active") || ""]}
+            class={[
+              (get_current_page_id(@admint) == page_id && "font-medium text-blue-400") || ""
+            ]}
           >
             <%= @pages[page_id].config.title %>
           </.link>
         <% {:category, category_id,  pages} -> %>
-          <p class="menu-label pb-0 pt-2"><%= @categories[category_id].config.title %></p>
-          <ul class="menu-list">
-            <li :for={{:page, page_id} <- pages}>
+          <p class="font-medium text-zinc-500"><%= @categories[category_id].config.title %></p>
+          <ul class="ml-5 border-l border-l-gray-400">
+            <li :for={{:page, page_id} <- pages} class="pl-3 mt-2">
               <.link
                 patch={get_page_route(@admint, page_id)}
-                class={[(get_current_page_id(@admint) == page_id && "is-active") || ""]}
+                class={[
+                  (get_current_page_id(@admint) == page_id && "font-medium text-blue-400") || ""
+                ]}
               >
                 <%= @pages[page_id].config.title %>
               </.link>

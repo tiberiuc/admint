@@ -75,7 +75,7 @@ defmodule Admint.Page do
               |> assign(:render, render)
 
             ~H"""
-            <div>
+            <div class="h-full w-full">
               <.live_component module={@render} {assigns} | id="admint_index_page" />
             </div>
             """
@@ -88,7 +88,7 @@ defmodule Admint.Page do
               |> assign(:render, render)
 
             ~H"""
-            <div>
+            <div class="h-full w-full">
               <.live_component module={@render} {assigns} id="admint_view_page" />
             </div>
             """
@@ -101,7 +101,7 @@ defmodule Admint.Page do
               |> assign(:render, render)
 
             ~H"""
-            <div>
+            <div class="h-full w-full">
               <.live_component module={@render} {assigns} id="admint_edit_page" />
             </div>
             """
@@ -120,7 +120,7 @@ defmodule Admint.Page do
           |> assign(:page_id, page_id)
 
         ~H"""
-        <div>
+        <div class="h-full w-full">
           <.live_component module={@render} {assigns} id={"admin_page_#{@page_id}"} />
         </div>
         """

@@ -50,8 +50,8 @@ defmodule Admint.ErrorPage do
       |> assign(:render, render)
 
     ~H"""
-    <div>
-      <.live_component module={@render} {%{assigns | id: :admint_error_page} } />
+    <div class="h-full w-full flex-1 flex">
+      <.live_component id="admint_error_page" module={@render} {%{assigns | id: :admint_error_page} } />
     </div>
     """
   end

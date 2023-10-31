@@ -41,7 +41,7 @@ defmodule Admint do
       import Admint
 
       pipeline :admint_pipeline do
-        plug :put_root_layout, html: {Admint.Web.Layouts, :admint}
+        plug :put_root_layout, html: {Admint.Web.Layouts, :admint_root}
       end
     end
   end

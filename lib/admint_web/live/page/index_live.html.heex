@@ -1,17 +1,19 @@
-<div id="index_page">
-  <h1 class="title"><%= @title %></h1>
-  <table class="table is-hoverable">
+<div id="index_page" class="flex flex-col">
+  <h1 class="font-bold text-4xl py-8 ml-10"><%= @title %></h1>
+  <table class="mx-10">
     <thead>
-      <tr>
-        <th>
-          <input
+      <tr class="bg-gray-200 h-12 text-lg">
+        <th class="text-center mx-3">
+          <.input
+            name="select_all"
             type="checkbox"
             phx-click="toggle_select_all"
             phx-target={@myself}
             checked={@select_all}
+            class="px-3"
           />
         </th>
-        <th :for={{_id, field} <- @fields}>
+        <th :for={{_id, field} <- @fields} class="text-left">
           <%= field.label %>
         </th>
         <th></th>
@@ -20,54 +22,54 @@
       </tr>
     </thead>
     <tbody>
-      <tr :for={%{id: id, selected: selected, data: row} <- @rows} id={"#{id}"}>
-        <td>
-          <input
+      <tr
+        :for={%{id: id, selected: selected, data: row} <- @rows}
+        id={"#{id}"}
+        class="h-8 hover:bg-gray-200 even:bg-gray-100"
+      >
+        <td class="text-center">
+          <.input
             type="checkbox"
+            name="select"
             phx-value-id={id}
             phx-click="toggle_select"
             phx-target={@myself}
             checked={selected}
+            class="px-3"
           />
         </td>
         <%= for {id,_field} <- @fields do %>
           <td><%= Map.get(row, id) %></td>
         <% end %>
         <td>
-          <button
-            class="button is-small is-light mb-0"
+          <.button
+            class="my-1 !bg-white hover:!bg-zinc-900 border"
             phx-click="view"
             phx-target={@myself}
             value={id}
           >
-            <span class="icon">
-              <i class="fa fa-eye"></i>
-            </span>
-          </button>
+            <.icon name="hero-eye" class="text-black w-7 h-7 hover:text-white" />
+          </.button>
         </td>
         <td>
-          <button
-            class="button is-small is-light mb-0"
+          <.button
+            class="my-1 !bg-white hover:!bg-zinc-900 border"
             phx-click="edit"
             phx-target={@myself}
             value={id}
           >
-            <span class="icon">
-              <i class="fa fa-edit"></i>
-            </span>
-          </button>
+            <.icon name="hero-pencil" class="text-black w-7 h-7 hover:text-white" />
+          </.button>
         </td>
         <td>
-          <button
-            class="button  is-small is-light is-danger mb-0"
+          <.button
+            class="my-1 !bg-white hover:!bg-zinc-900 border border-red-100"
             phx-click="delete"
             phx-target={@myself}
             value={id}
           >
-            <span class="icon">
-              <i class="fa fa-trash"></i>
-            </span>
-          </button>
+            <.icon name="hero-trash" class="text-red-500 w-7 h-7" />
+          </.button>
         </td>
         <td></td>
       </tr>

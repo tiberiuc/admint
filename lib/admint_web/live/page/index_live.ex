@@ -69,7 +69,8 @@ defmodule Admint.Web.Page.IndexLive do
 
   @impl true
   def handle_event("toggle_select_all", params, socket) do
-    value = Map.get(params, "value", false) == "on"
+    IO.inspect(params)
+    value = Map.get(params, "value", false) == "true"
     assigns = socket.assigns
 
     rows =

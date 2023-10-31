@@ -1,4 +1,4 @@
-<main role="main">
+<main role="main" class="flex h-screen flex-col">
   <p class="alert alert-info" role="alert" phx-click="lv:clear-flash" phx-value-key="info">
     <%= live_flash(@flash, :info) %>
   </p>
@@ -7,17 +7,17 @@
     <%= live_flash(@flash, :error) %>
   </p>
 
-  <nav class="navbar is-white">
+  <nav class="">
     <!-- Header -->
     <%= render_header(assigns) %>
   </nav>
 
-  <div class="columns is-fullheight">
-    <div class="column is-2 p-5">
+  <div class="flex-1 flex flex-row">
+    <div class="h-full">
       <!-- Navigation -->
       <%= render_navigation(assigns) %>
     </div>
-    <div class="column is-10 pl-4 pr-4">
+    <div class="flex-1 p-3 h-full">
       <!-- Page -->
       <%= render_page(assigns) %>
     </div>

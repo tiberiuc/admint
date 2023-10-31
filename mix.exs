@@ -104,6 +104,7 @@ defmodule Admint.MixProject do
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["tailwind default", "esbuild default"],
       "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"],
+      "assets.watch": ["tailwind default --watch", "esbuild default --watch"],
       "assets.clean": ["cmd rm -rf priv/static"]
     ]
   end

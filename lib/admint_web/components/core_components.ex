@@ -284,6 +284,7 @@ defmodule Admint.Web.CoreComponents do
   attr :prompt, :string, default: nil, doc: "the prompt for select inputs"
   attr :options, :list, doc: "the options to pass to Phoenix.HTML.Form.options_for_select/2"
   attr :multiple, :boolean, default: false, doc: "the multiple flag for select inputs"
+  attr :class, :string, default: nil, doc: "class for container element"
 
   attr :rest, :global,
     include: ~w(accept autocomplete capture cols disabled form list max maxlength min minlength
@@ -307,7 +308,7 @@ defmodule Admint.Web.CoreComponents do
       end)
 
     ~H"""
-    <div phx-feedback-for={@name}>
+    <div phx-feedback-for={@name} class={@class}>
       <label class="flex items-center gap-4 text-sm leading-6 text-zinc-600">
         <input type="hidden" name={@name} value="false" />
         <input

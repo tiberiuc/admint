@@ -1,13 +1,15 @@
-<div>
-  <h1 class="title"><%= @title %></h1>
-  <table class="table is-hoverable">
+<div class="flex flex-col gap-10 pl-10">
+  <h1 class="font-bold text-4xl pt-10"><%= @title %></h1>
+  <table class="">
     <tbody>
-      <tr :for={{field_id, field} <- @fields} id={field_id}>
-        <td><%= field.label %></td>
+      <tr :for={{field_id, field} <- @fields} id={field_id} class="hover:bg-gray-100 h-10">
+        <td class="font-semibold pr-5"><%= field.label %></td>
         <td><%= Map.get(@row, field_id) %></td>
       </tr>
     </tbody>
   </table>
 
-  <.link navigate={get_page_route(@admint, @page_id)}>Back</.link>
+  <.link navigate={get_page_route(@admint, @page_id)} class="text-2xl underline my-10">
+    Back
+  </.link>
 </div>
