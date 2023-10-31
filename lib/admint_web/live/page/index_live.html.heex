@@ -23,6 +23,16 @@
         class="px-3"
       />
     </:col>
+    <:header :for={{id, field} <- @fields} id={id}>
+      <div class="flex items-center">
+        <%= field.label %>
+        <div class="ml-1 cursor-pointer" phx-click="change_sort" phx-value-id={id} phx-target={@myself}>
+          <.icon :if={{sort_id, _} = @sort; sort_id != id} name="hero-chevron-up-down" class="w-7 h-7 text-gray-400 " />
+          <.icon :if={{sort_id, order} = @sort; sort_id == id and order == :asc} name="hero-chevron-down" class="w-7 h-7 text-black " />
+          <.icon :if={{sort_id, order} = @sort; sort_id == id and order == :desc} name="hero-chevron-up" class="w-7 h-7 text-black" />
+        </div>
+      </div>
+    </:header>
     <:col :let={row} :for={{id, field} <- @fields} label={field.label} id={id}>
       <%= Map.get(row.data, id) %>
     </:col>

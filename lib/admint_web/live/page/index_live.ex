@@ -15,6 +15,10 @@ defmodule Admint.Web.Page.IndexLive do
     {:page, page_id} = get_current_page(admint)
     page = get_page_by_id(module, page_id)
 
+    query = admint.params.query
+
+    sort = {query["sort_by"] |> to_atom(), query["sort"] |> to_atom()}
+
     config = page.config
     fields = get_fields(config)
     rows = get_all(config)
@@ -27,6 +31,7 @@ defmodule Admint.Web.Page.IndexLive do
       |> assign(:rows, rows)
       |> assign(:fields, fields)
       |> assign(:select_all, false)
+      |> assign(sort: sort)
 
     {:ok, socket}
   end
@@ -69,7 +74,6 @@ defmodule Admint.Web.Page.IndexLive do
 
   @impl true
   def handle_event("toggle_select_all", params, socket) do
-    IO.inspect(params)
     value = Map.get(params, "value", false) == "true"
     assigns = socket.assigns
 
@@ -106,6 +110,35 @@ defmodule Admint.Web.Page.IndexLive do
     {:noreply, socket |> assign(rows: rows, select_all: all_selected)}
   end
 
+  @impl true
+  def handle_event("change_sort", params, socket) do
+    {id, order} = socket.assigns.sort
+    field_id = params["id"] |> to_atom()
+
+    sort =
+      cond do
+        field_id != id ->
+          {field_id, :asc}
+
+        order == :asc ->
+          {field_id, :desc}
+
+        true ->
+          {nil, nil}
+      end
+
+    {id, order} = sort
+
+    path = update_query(socket.assigns.admint, %{sort_by: id, sort: order})
+
+    socket =
+      socket
+      |> assign(sort: sort)
+      |> push_patch(to: path)
+
+    {:noreply, socket}
+  end
+
   defp is_all_selected(rows) do
     rows
     |> Enum.map(fn %{selected: selected} -> selected end)
@@ -128,5 +161,23 @@ defmodule Admint.Web.Page.IndexLive do
   defp get_fields(config) do
     schema = config.schema
     Admint.Schema.fields(schema)
+  end
+
+  defp to_atom(nil), do: nil
+
+  defp to_atom(str) do
+    try do
+      String.to_existing_atom(str)
+    rescue
+      _ -> nil
+    end
+  end
+
+  defp update_query(admint, query) do
+    path = ([admint.base_path] ++ admint.params.path) |> Enum.join("/")
+    query = Map.merge(admint.params.query, query)
+
+    query = "?" <> (Enum.map(query, fn {key, value} -> "#{key}=#{value}" end) |> Enum.join("&"))
+    path <> query
   end
 end
