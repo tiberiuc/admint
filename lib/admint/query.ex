@@ -10,7 +10,7 @@ defmodule Admint.Query do
     sort_by = opts[:sort_by]
     sort = opts[:sort] || :asc
 
-    if sort_by do
+    if sort_by != nil do
       query
       |> order_by([table: t], [{^sort, field(t, ^sort_by)}])
     else

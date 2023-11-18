@@ -178,6 +178,7 @@ defmodule Admint.Web.Page.IndexLive do
   end
 
   defp to_atom(nil), do: nil
+  defp to_atom(""), do: nil
 
   defp to_atom(str) do
     try do
@@ -189,10 +190,21 @@ defmodule Admint.Web.Page.IndexLive do
 
   defp update_query(admint, query) do
     path = ([admint.base_path] ++ admint.params.path) |> Enum.join("/")
-    query = Enum.map(query, fn {key, value} -> {to_string(key), value} end) |> Enum.into(%{})
-    query = Map.merge(admint.params.query, query)
 
-    query = "?" <> (Enum.map(query, fn {key, value} -> "#{key}=#{value}" end) |> Enum.join("&"))
+    query =
+      Enum.map(query, fn {key, value} -> {to_string(key), value} end)
+      |> Enum.into(%{})
+
+    query =
+      Map.merge(admint.params.query, query)
+      |> Enum.reject(fn {_, value} -> value == "" or value == nil end)
+      |> Enum.into(%{})
+
+    query =
+      if Enum.count(query) == 0,
+        do: "",
+        else: "?" <> (Enum.map(query, fn {key, value} -> "#{key}=#{value}" end) |> Enum.join("&"))
+
     path <> query
   end
 end
